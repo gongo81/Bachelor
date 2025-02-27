@@ -31,7 +31,7 @@ cd backend
 npm init -y  # Initialize Node.js project
 npm install express cors axios body-parser dotenv
 
-# FastAPI
+# FastAPI:
 python -m venv venv  # Create a virtual environment (optional)
 source venv/bin/activate  # Activate venv (Mac/Linux)
 venv\Scripts\activate  # Activate venv (Windows)
@@ -39,8 +39,10 @@ venv\Scripts\activate  # Activate venv (Windows)
 
 #### **Start the Backend**
 ```sh
+# node.js:
 node server.js
 
+# FastAPI:
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
