@@ -1,4 +1,4 @@
-# NoSQLconcepts + FastAPI/ Node.js + React + Ollama - An AI-Powered Learning Assistant for NoSQL Databases
+# NoSQLconcepts + Node.js + React + Ollama - An AI-Powered Learning Assistant for NoSQL Databases
 
 This project enhances the **NoSQLconcepts** React Web Application by integrating a **Large Language Model (LLM)** to provide **personalized exercises and automated feedback** for learning NoSQL databases. It combines a **React frontend**, a **Node.js backend**, and an **Ollama-powered LLM** running **locally**.
 
@@ -22,31 +22,21 @@ git clone https://github.com/gongo81/Bachelor.git
 cd bachelor
 ```
 
-### 2. **Setup Backend (FastAPI)**
+### 2. **Setup Backend (Node.js)**
 
-#### **Install Python dependencies**
+#### **Install Dependencies**
 ```sh
-# node.js:
 cd backend
 npm init -y  # Initialize Node.js project
 npm install express cors axios body-parser dotenv
-
-# FastAPI:
-python -m venv venv  # Create a virtual environment (optional)
-source venv/bin/activate  # Activate venv (Mac/Linux)
-venv\Scripts\activate  # Activate venv (Windows)
 ```
 
 #### **Start the Backend**
 ```sh
-# node.js:
 node server.js
-
-# FastAPI:
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 3. **Install Ollama)**
+### 3. **Install Ollama**
 
 #### **Install Ollama**
 ```sh
@@ -56,7 +46,7 @@ For Windows, follow [Ollama's official installation guide](https://ollama.com/do
 
 #### **Download and Start Ollama**
 ```sh
-ollama pull deepseek-r1:14b # or other model
+ollama pull llama3.1:latest
 ollama serve
 ```
 
@@ -77,22 +67,29 @@ npm start
 
 ---
 
-### 5. **Setup MongoDB Database**
+### 5. **Setup MongoDB Database** *(Optional if needed for future extensions)*
 
 #### **Install MongoDB Dependencies**
 ```sh
-# FastAPI (Python)
-pip install motor python-dotenv
-python -m pip install "pymongo[srv]"
-
 # Node.js
 npm install mongoose dotenv
 ```
 
 #### **Connect to MongoDB**
-```sh
+Modify the `server.js` file to include MongoDB connection:
+```javascript
+const mongoose = require("mongoose");
+require("dotenv").config();
 
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.error("MongoDB connection error:", err));
 ```
+
+---
 
 ## **License**
 This project is open-source. Feel free to use and modify it as needed.
