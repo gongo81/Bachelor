@@ -76,18 +76,7 @@ npm install mongoose dotenv
 ```
 
 #### **Connect to MongoDB**
-Modify the `server.js` file to include MongoDB connection:
-```javascript
-const mongoose = require("mongoose");
-require("dotenv").config();
 
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.error("MongoDB connection error:", err));
-```
 
 ---
 
