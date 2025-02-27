@@ -65,7 +65,7 @@ ollama serve
 
 ```sh
 cd ../frontend
-npm install  # Install dependencies
+npm install axios 
 ```
 
 #### **Start React Frontend**
@@ -81,14 +81,15 @@ npm start
 ```sh
 # FastAPI (Python)
 pip install motor python-dotenv
+python -m pip install "pymongo[srv]"
 
 # Node.js
 npm install mongoose dotenv
 ```
 
-#### **Start MongoDB Locally**
+#### **Connect to MongoDB**
 ```sh
-mongod --dbpath /data/db
+
 ```
 
 ## **License**
