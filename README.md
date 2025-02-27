@@ -44,7 +44,7 @@ node server.js
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 3. **Install Ollama (DeepSeek)**
+### 3. **Install Ollama)**
 
 #### **Install Ollama**
 ```sh
@@ -54,7 +54,7 @@ For Windows, follow [Ollama's official installation guide](https://ollama.com/do
 
 #### **Download and Start Ollama**
 ```sh
-ollama pull deepseek-r1:14b
+ollama pull deepseek-r1:14b # or other model
 ollama serve
 ```
 
@@ -74,6 +74,22 @@ npm start
 ```
 
 ---
+
+### 5. **Setup MongoDB Database**
+
+#### **Install MongoDB Dependencies**
+```sh
+# FastAPI (Python)
+pip install motor python-dotenv
+
+# Node.js
+npm install mongoose dotenv
+```
+
+#### **Start MongoDB Locally**
+```sh
+mongod --dbpath /data/db
+```
 
 ## **License**
 This project is open-source. Feel free to use and modify it as needed.
