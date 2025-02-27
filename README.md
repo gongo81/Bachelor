@@ -1,6 +1,6 @@
-# NoSQLconcepts + Node.js + React + Ollama (DeepSeek) - An AI-Powered Learning Assistant for NoSQL Databases
+# NoSQLconcepts + FastAPI/ Node.js + React + Ollama - An AI-Powered Learning Assistant for NoSQL Databases
 
-This project enhances the **NoSQLconcepts** React Web Application by integrating a **Large Language Model (LLM)** to provide **personalized exercises and automated feedback** for learning NoSQL databases. It combines a **React frontend**, a **Node.js backend**, and an **Ollama-powered LLM (DeepSeek)** running **locally**.
+This project enhances the **NoSQLconcepts** React Web Application by integrating a **Large Language Model (LLM)** to provide **personalized exercises and automated feedback** for learning NoSQL databases. It combines a **React frontend**, a **Node.js backend**, and an **Ollama-powered LLM** running **locally**.
 
 ---
 
@@ -26,14 +26,22 @@ cd bachelor
 
 #### **Install Python dependencies**
 ```sh
+# node.js:
 cd backend
 npm init -y  # Initialize Node.js project
 npm install express cors axios body-parser dotenv
+
+# FastAPI
+python -m venv venv  # Create a virtual environment (optional)
+source venv/bin/activate  # Activate venv (Mac/Linux)
+venv\Scripts\activate  # Activate venv (Windows)
 ```
 
 #### **Start the Backend**
 ```sh
 node server.js
+
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### 3. **Install Ollama (DeepSeek)**
