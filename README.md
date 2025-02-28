@@ -1,6 +1,6 @@
-# NoSQLconcepts + Node.js + React + Ollama - An AI-Powered Learning Assistant for NoSQL Databases
+# NoSQLconcepts + Node.js + React + Ollama + SQLite - An AI-Powered Learning Assistant for NoSQL Databases
 
-This project enhances the **NoSQLconcepts** React Web Application by integrating a **Large Language Model (LLM)** to provide **personalized exercises and automated feedback** for learning NoSQL databases. It combines a **React frontend**, a **Node.js backend**, and an **Ollama-powered LLM** running **locally**.
+This project enhances the **NoSQLconcepts** React Web Application by integrating a **Large Language Model (LLM)** to provide **personalized exercises and automated feedback** for learning NoSQL databases. It combines a **React frontend**, a **Node.js backend**, and an **Ollama-powered LLM** running **locally**, using **SQLite** as the database.
 
 ---
 
@@ -22,7 +22,7 @@ git clone https://github.com/gongo81/Bachelor.git
 cd bachelor
 ```
 
-### 2. **Setup Backend (Node.js)**
+### 2. **Setup Backend (Node.js + SQLite)**
 
 #### **Install Dependencies**
 ```sh
@@ -30,16 +30,15 @@ cd backend
 npm install
 ```
 
-#### **Create a `.env` File**
-Create a `.env` file in the `backend` folder and add:
-```sh
-MONGO_URI=mongodb://localhost:27017/test
-```
+#### **Create SQLite Database**
+SQLite requires no setup, but the database file will be generated automatically when the backend starts.
 
 #### **Start the Backend**
 ```sh
 npm start  # Or use `npm run dev` if nodemon is installed
 ```
+
+---
 
 ### 3. **Install and Run Ollama**
 
@@ -54,6 +53,8 @@ For Windows, follow [Ollama's official installation guide](https://ollama.com/do
 ollama pull llama3.1:latest  # Or another model
 ollama serve
 ```
+
+---
 
 ### 4. **Setup Frontend (React)**
 
@@ -72,34 +73,13 @@ npm start
 
 ---
 
-### 5. **Setup MongoDB Database**
+### 5. **Database Setup (SQLite)**
 
-#### **Install MongoDB Locally (If Not Using Atlas)**
-- **Windows:** Follow [MongoDB Installation Guide](https://www.mongodb.com/docs/manual/installation/).
-- **Mac/Linux:**
-```sh
-brew install mongodb-community
-brew services start mongodb-community
-```
-
-#### **Install MongoDB Dependencies**
-```sh
-cd backend
-npm install mongoose dotenv
-```
-
-#### **Ensure MongoDB is Running**
-```sh
-mongod --dbpath="C:\data\db"  # Windows
-sudo systemctl start mongod      # Mac/Linux
-```
-
-#### **Connect to MongoDB Atlas (Alternative)**
-If using **MongoDB Atlas**, replace the local URI in `.env` with:
-```sh
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/test?retryWrites=true&w=majority
-```
-Then restart the backend.
+#### **How SQLite Works in This Project**
+- SQLite is **file-based**, meaning no external database server is required.
+- The database (`exercises.db`) is automatically created in the `backend` folder.
+- The backend initializes the database and creates necessary tables.
+- **For better visualization**, you can download [DB Browser for SQLite](https://sqlitebrowser.org/) to inspect the database.
 
 ---
 
