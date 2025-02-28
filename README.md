@@ -27,15 +27,21 @@ cd bachelor
 #### **Install Dependencies**
 ```sh
 cd backend
-npm install express cors axios body-parser dotenv
+npm install
+```
+
+#### **Create a `.env` File**
+Create a `.env` file in the `backend` folder and add:
+```sh
+MONGO_URI=mongodb://localhost:27017/test
 ```
 
 #### **Start the Backend**
 ```sh
-node server.js
+npm start  # Or use `npm run dev` if nodemon is installed
 ```
 
-### 3. **Install Ollama**
+### 3. **Install and Run Ollama**
 
 #### **Install Ollama**
 ```sh
@@ -45,18 +51,18 @@ For Windows, follow [Ollama's official installation guide](https://ollama.com/do
 
 #### **Download and Start Ollama**
 ```sh
-ollama pull llama3.1:latest # or other model
+ollama pull llama3.1:latest  # Or another model
 ollama serve
 ```
 
 ### 4. **Setup Frontend (React)**
 
 #### **Install Frontend Dependencies**
-- Ensure **Node.js** is installed. If not, download and install it from [Node.js Official Website](https://nodejs.org).
+Ensure **Node.js** is installed. If not, download and install it from [Node.js Official Website](https://nodejs.org).
 
 ```sh
 cd frontend
-npm install axios 
+npm install
 ```
 
 #### **Start React Frontend**
@@ -66,15 +72,34 @@ npm start
 
 ---
 
-### 5. **Setup MongoDB Database** 
+### 5. **Setup MongoDB Database**
+
+#### **Install MongoDB Locally (If Not Using Atlas)**
+- **Windows:** Follow [MongoDB Installation Guide](https://www.mongodb.com/docs/manual/installation/).
+- **Mac/Linux:**
+```sh
+brew install mongodb-community
+brew services start mongodb-community
+```
 
 #### **Install MongoDB Dependencies**
 ```sh
-# Node.js
+cd backend
 npm install mongoose dotenv
 ```
 
-#### **Connect to MongoDB**
+#### **Ensure MongoDB is Running**
+```sh
+mongod --dbpath="C:\data\db"  # Windows
+sudo systemctl start mongod      # Mac/Linux
+```
+
+#### **Connect to MongoDB Atlas (Alternative)**
+If using **MongoDB Atlas**, replace the local URI in `.env` with:
+```sh
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/test?retryWrites=true&w=majority
+```
+Then restart the backend.
 
 ---
 
