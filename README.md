@@ -27,7 +27,6 @@ cd bachelor
 #### **Install Dependencies**
 ```sh
 cd backend
-npm init -y  # Initialize Node.js project
 npm install express cors axios body-parser dotenv
 ```
 
@@ -46,7 +45,7 @@ For Windows, follow [Ollama's official installation guide](https://ollama.com/do
 
 #### **Download and Start Ollama**
 ```sh
-ollama pull llama3.1:latest
+ollama pull llama3.1:latest # or other model
 ollama serve
 ```
 
@@ -56,7 +55,7 @@ ollama serve
 - Ensure **Node.js** is installed. If not, download and install it from [Node.js Official Website](https://nodejs.org).
 
 ```sh
-cd ../frontend
+cd frontend
 npm install axios 
 ```
 
@@ -67,7 +66,7 @@ npm start
 
 ---
 
-### 5. **Setup MongoDB Database** *(Optional if needed for future extensions)*
+### 5. **Setup MongoDB Database** 
 
 #### **Install MongoDB Dependencies**
 ```sh
@@ -76,7 +75,6 @@ npm install mongoose dotenv
 ```
 
 #### **Connect to MongoDB**
-
 
 ---
 
