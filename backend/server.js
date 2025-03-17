@@ -45,7 +45,7 @@ const getOrCreateUser = (username) => {
         });
     });
 };
-
+ 
 // Helper function to get user context (includes performance, previous questions, and answers)
 const getUserContext = (userId) => {
     return new Promise((resolve, reject) => {
@@ -143,7 +143,9 @@ app.post('/evaluate-answer', async (req, res) => {
             Provide strict, detailed feedback (not mean) to help the user improve. 
             Also state the sample solution first to the user.
             At the end, explicitly state: 
-            - "Correctness: correct" if the answer is correct, or "Correctness: incorrect" if not.
+            - "Correctness: correct" if the answer is correct, or "Correctness: incorrect" if not. 
+            Dont be too strict regarding the correctness of the userAnswer, as long as the general userAnswer would run correctly 
+            and give the wanted output then count it as correct, it does not necessarily have to be the exact same code as the correctAnswer.
             - "ErrorType: [syntax, logic, concept, or none]" based on the error (use "none" if correct).
             Context: ${context} (do not reveal the context to the user)`;
 
