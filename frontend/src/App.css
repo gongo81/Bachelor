@@ -1,19 +1,48 @@
-/* App.css */
+/* Main app container styling */
 .App {
   text-align: center;
   margin: 0;
   padding: 40px;
   min-height: 100vh;
-  background-color: #e0e0e0; /* Light grey background */
+  background-color: #e0e0e0;
   font-family: Arial, sans-serif;
 }
 
 h1 {
-  color: #333; /* Darker grey for text */
+  color: #333;
   margin-bottom: 30px;
   font-size: 2.5em;
 }
 
+/* Role selection screen */
+.role-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.role-selection p {
+  font-size: 1.2em;
+  color: #555;
+}
+
+.role-selection button {
+  padding: 15px 30px;
+  font-size: 1.2em;
+  background-color: #4a4a4a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.role-selection button:hover {
+  background-color: #666;
+}
+
+/* Input section shared by student and teacher pages */
 .input-container {
   display: flex;
   flex-wrap: wrap;
@@ -25,7 +54,7 @@ h1 {
 
 label {
   font-size: 1.2em;
-  color: #555; /* Medium grey */
+  color: #555;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -34,7 +63,7 @@ label {
 input, select {
   padding: 10px;
   font-size: 1em;
-  border: 1px solid #999; /* Darker grey border */
+  border: 1px solid #999;
   border-radius: 5px;
   background-color: #fff;
   width: 200px;
@@ -43,7 +72,7 @@ input, select {
 button {
   padding: 10px 20px;
   font-size: 1em;
-  background-color: #4a4a4a; /* Dark grey button */
+  background-color: #4a4a4a;
   color: white;
   border: none;
   border-radius: 5px;
@@ -57,15 +86,15 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background-color: #666; /* Slightly lighter grey on hover */
+  background-color: #666;
 }
 
 button:disabled {
-  background-color: #999; /* Lighter grey when disabled */
+  background-color: #999;
   cursor: not-allowed;
 }
 
-/* Spinner styling */
+/* Loading spinner for buttons */
 .spinner {
   display: inline-block;
   width: 20px;
@@ -80,28 +109,80 @@ button:disabled {
   to { transform: rotate(360deg); }
 }
 
+/* Student page layout */
+.student-page .main-layout {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.content-container {
+  flex: 2;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .question-container {
-  background-color: #f5f5f5; /* Very light grey for contrast */
+  background-color: #f5f5f5;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  margin: 20px auto;
-  max-width: 600px;
-  display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center items horizontally */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.teacher-exercises-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-exercises-container ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.teacher-exercises-container li {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.teacher-exercises-container li:hover {
+  background-color: #e0e0e0;
+}
+
+.back-arrow {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #777;
+  padding: 5px 10px;
+  min-width: auto;
+  font-size: 0.9em;
+}
+
+.back-arrow:hover {
+  background-color: #888;
 }
 
 h3 {
-  color: #4a4a4a; /* Dark grey for headings */
+  color: #4a4a4a;
   margin-bottom: 10px;
 }
 
 p {
-  color: #666; /* Medium grey for text */
+  color: #666;
   font-size: 1.1em;
   line-height: 1.5;
-  width: 100%; /* Ensure paragraph takes full width */
+  width: 100%;
 }
 
 textarea {
@@ -110,7 +191,7 @@ textarea {
   height: 120px;
   padding: 10px;
   font-size: 1em;
-  border: 1px solid #999; /* Darker grey border */
+  border: 1px solid #999;
   border-radius: 5px;
   background-color: #fff;
   resize: vertical;
@@ -119,15 +200,68 @@ textarea {
 
 textarea:focus {
   outline: none;
-  border-color: #4a4a4a; /* Dark grey focus border */
+  border-color: #4a4a4a;
   box-shadow: 0 0 5px rgba(74, 74, 74, 0.3);
 }
 
 .feedback-container {
-  background-color: #f5f5f5; /* Very light grey for contrast */
+  background-color: #f5f5f5;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  margin: 20px auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Container for progress and status messages */
+.context-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   max-width: 600px;
+  margin: 20px auto;
+}
+
+.context-container h3 {
+  color: #4a4a4a;
+  margin-bottom: 10px;
+}
+
+.context-container pre {
+  color: #666;
+  font-size: 1em;
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #999;
+}
+
+/* Teacher page exercise creation section */
+.teacher-prompt-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.teacher-prompt-container textarea {
+  height: 100px;
+}
+
+/* Back button styling */
+.back-button {
+  background-color: #777;
+  min-width: 80px;
+  padding: 8px 16px;
+}
+
+.back-button:hover {
+  background-color: #888;
 }
