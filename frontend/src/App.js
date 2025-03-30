@@ -2,14 +2,55 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// Initial role selection screen
+// Initial role selection screen with user creation
 function RoleSelection({ onRoleSelect }) {
+    const [newUsername, setNewUsername] = useState('');
+    const [createUserStatus, setCreateUserStatus] = useState('');
+
+    // Create a new student user
+    const createUser = async () => {
+        if (!newUsername) {
+            setCreateUserStatus('Error: Please enter a username');
+            return;
+        }
+        try {
+            const response = await axios.post('http://localhost:5000/create-user', { username: newUsername });
+            setCreateUserStatus(response.data.message);
+            setNewUsername(''); 
+        } catch (error) {
+            if (error.response && error.response.status === 400) {
+                setCreateUserStatus('Error: Username already exists');
+            } else {
+                console.error(error);
+                setCreateUserStatus('Error creating user');
+            }
+        }
+    };
+
     return (
         <div className="role-selection">
             <h1>Welcome to NoSQLconcepts with LLM</h1>
             <p>Please select your role:</p>
             <button onClick={() => onRoleSelect('student')}>Student</button>
             <button onClick={() => onRoleSelect('teacher')}>Teacher</button>
+            <div className="user-creation-container">
+                <h3>Create Student User:</h3>
+                <label>
+                    Username: 
+                    <input 
+                        type="text" 
+                        value={newUsername} 
+                        onChange={(e) => setNewUsername(e.target.value)} 
+                        placeholder="Enter new student username" 
+                    />
+                </label>
+                <button onClick={createUser}>Create Student</button>
+                {createUserStatus && (
+                    <div className="status-container">
+                        <p>{createUserStatus}</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
@@ -45,7 +86,14 @@ function StudentPage({ onBack }) {
             setShowTeacherExercises(false);
             setTeacherExercises([]);
         } catch (error) {
-            console.error(error);
+            if (error.response && error.response.status === 404) {
+                setTeacherExercises('Error: User not found');
+                setShowTeacherExercises(false);
+            } else {
+                console.error(error);
+                setTeacherExercises('Error generating exercise');
+                setShowTeacherExercises(false);
+            }
         } finally {
             setIsGenerating(false);
         }
@@ -108,7 +156,12 @@ function StudentPage({ onBack }) {
             });
             setFeedback(response.data.feedback);
         } catch (error) {
-            console.error(error);
+            if (error.response && error.response.status === 404) {
+                setFeedback('Error: User not found');
+            } else {
+                console.error(error);
+                setFeedback('Error evaluating answer');
+            }
         } finally {
             setIsEvaluating(false);
         }
@@ -190,6 +243,7 @@ function TeacherPage({ onBack }) {
     const [userContext, setUserContext] = useState('');
     const [teacherPrompt, setTeacherPrompt] = useState('');
     const [dbType, setDbType] = useState('MongoDB');
+    const [difficulty, setDifficulty] = useState('Easy');
     const [isGenerating, setIsGenerating] = useState(false);
 
     // Fetch student progress overview
@@ -211,7 +265,7 @@ function TeacherPage({ onBack }) {
         }
     };
 
-    // Generate a teacher-created exercise
+    // Generate a teacher-created exercise with selected difficulty
     const generateTeacherExercise = async () => {
         if (!username || !teacherPrompt) {
             alert('Please enter a username and a prompt');
@@ -222,13 +276,18 @@ function TeacherPage({ onBack }) {
             const response = await axios.post('http://localhost:5000/generate-teacher-exercise', {
                 username,
                 prompt: teacherPrompt,
-                dbType
+                dbType,
+                difficulty
             });
             alert(response.data.message);
             setTeacherPrompt('');
         } catch (error) {
-            console.error(error);
-            alert('Error generating exercise');
+            if (error.response && error.response.status === 404) {
+                setUserContext('Error: User not found');
+            } else {
+                console.error(error);
+                alert('Error generating exercise');
+            }
         } finally {
             setIsGenerating(false);
         }
@@ -253,8 +312,16 @@ function TeacherPage({ onBack }) {
                         <option value="PostgreSQL">PostgreSQL</option>
                     </select>
                 </label>
+                <label>Difficulty: 
+                    <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </label>
                 <textarea value={teacherPrompt} onChange={(e) => setTeacherPrompt(e.target.value)} placeholder=
-                "Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer collection/ table')" />
+                {"Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer collection/ table " +
+                "- or - Create a query which involves the $group function on the collection/ table...')"}/>
                 <button onClick={generateTeacherExercise} disabled={isGenerating}>
                     {isGenerating ? <span className="spinner"></span> : 'Generate Exercise'}
                 </button>
@@ -278,6 +345,7 @@ function App() {
 
     return (
         <div className="App">
+            <div className="top-bar"></div>
             {!role && <RoleSelection onRoleSelect={handleRoleSelect} />}
             {role === 'student' && <StudentPage onBack={handleBack} />}
             {role === 'teacher' && <TeacherPage onBack={handleBack} />}
