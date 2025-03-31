@@ -2,60 +2,19 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// Initial role selection screen with user creation
+// Initial role selection screen (simplified, no user creation)
 function RoleSelection({ onRoleSelect }) {
-    const [newUsername, setNewUsername] = useState('');
-    const [createUserStatus, setCreateUserStatus] = useState('');
-
-    // Create a new student user
-    const createUser = async () => {
-        if (!newUsername) {
-            setCreateUserStatus('Error: Please enter a username');
-            return;
-        }
-        try {
-            const response = await axios.post('http://localhost:5000/create-user', { username: newUsername });
-            setCreateUserStatus(response.data.message);
-            setNewUsername(''); 
-        } catch (error) {
-            if (error.response && error.response.status === 400) {
-                setCreateUserStatus('Error: Username already exists');
-            } else {
-                console.error(error);
-                setCreateUserStatus('Error creating user');
-            }
-        }
-    };
-
     return (
         <div className="role-selection">
             <h1>Welcome to NoSQLconcepts with LLM</h1>
             <p>Please select your role:</p>
             <button onClick={() => onRoleSelect('student')}>Student</button>
             <button onClick={() => onRoleSelect('teacher')}>Teacher</button>
-            <div className="user-creation-container">
-                <h3>Create Student User:</h3>
-                <label>
-                    Username: 
-                    <input 
-                        type="text" 
-                        value={newUsername} 
-                        onChange={(e) => setNewUsername(e.target.value)} 
-                        placeholder="Enter new student username" 
-                    />
-                </label>
-                <button onClick={createUser}>Create Student</button>
-                {createUserStatus && (
-                    <div className="status-container">
-                        <p>{createUserStatus}</p>
-                    </div>
-                )}
-            </div>
         </div>
     );
 }
 
-// Student dashboard for exercises and submissions
+// Student dashboard for exercises and submissions (unchanged)
 function StudentPage({ onBack }) {
     const [dbType, setDbType] = useState('MongoDB');
     const [username, setUsername] = useState('');
@@ -69,7 +28,6 @@ function StudentPage({ onBack }) {
     const [selectedTeacherExercise, setSelectedTeacherExercise] = useState(null);
     const [showTeacherExercises, setShowTeacherExercises] = useState(false);
 
-    // Generate a new exercise from the backend
     const generateExercise = async () => {
         if (!username) {
             alert('Please enter a username');
@@ -99,7 +57,6 @@ function StudentPage({ onBack }) {
         }
     };
 
-    // Fetch teacher-created exercises for the student
     const fetchTeacherExercises = async () => {
         if (!username) {
             alert('Please enter a username');
@@ -144,7 +101,6 @@ function StudentPage({ onBack }) {
         setShowTeacherExercises(true);
     };
 
-    // Submit student answer for evaluation
     const evaluateAnswer = async () => {
         setIsEvaluating(true);
         try {
@@ -237,14 +193,16 @@ function StudentPage({ onBack }) {
     );
 }
 
-// Teacher dashboard for creating exercises and viewing progress
+// Teacher dashboard with user creation added
 function TeacherPage({ onBack }) {
     const [username, setUsername] = useState('');
     const [userContext, setUserContext] = useState('');
     const [teacherPrompt, setTeacherPrompt] = useState('');
     const [dbType, setDbType] = useState('MongoDB');
-    const [difficulty, setDifficulty] = useState('Easy');
+    const [difficulty, setDifficulty] = useState('Medium');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [newUsername, setNewUsername] = useState(''); // Moved from RoleSelection
+    const [createUserStatus, setCreateUserStatus] = useState(''); // Moved from RoleSelection
 
     // Fetch student progress overview
     const showUserContext = async () => {
@@ -265,7 +223,7 @@ function TeacherPage({ onBack }) {
         }
     };
 
-    // Generate a teacher-created exercise with selected difficulty
+    // Generate a teacher-created exercise
     const generateTeacherExercise = async () => {
         if (!username || !teacherPrompt) {
             alert('Please enter a username and a prompt');
@@ -293,6 +251,26 @@ function TeacherPage({ onBack }) {
         }
     };
 
+    // Create a new student user (moved from RoleSelection)
+    const createUser = async () => {
+        if (!newUsername) {
+            setCreateUserStatus('Error: Please enter a username');
+            return;
+        }
+        try {
+            const response = await axios.post('http://localhost:5000/create-user', { username: newUsername });
+            setCreateUserStatus(response.data.message);
+            setNewUsername(''); // Clear input on success
+        } catch (error) {
+            if (error.response && error.response.status === 400) {
+                setCreateUserStatus('Error: Username already exists');
+            } else {
+                console.error(error);
+                setCreateUserStatus('Error creating user');
+            }
+        }
+    };
+
     return (
         <div className="teacher-page">
             <h1>Teacher Dashboard</h1>
@@ -301,6 +279,24 @@ function TeacherPage({ onBack }) {
                 <label>Student Username: <input type="text" value={username} onChange={(e) => 
                     setUsername(e.target.value)} placeholder="Enter student username" /></label>
                 <button onClick={showUserContext}>Show User Progress</button>
+            </div>
+            <div className="user-creation-container">
+                <h3>Create Student User:</h3>
+                <label>
+                    Username: 
+                    <input 
+                        type="text" 
+                        value={newUsername} 
+                        onChange={(e) => setNewUsername(e.target.value)} 
+                        placeholder="Enter new student username" 
+                    />
+                </label>
+                <button onClick={createUser}>Create Student</button>
+                {createUserStatus && (
+                    <div className="status-container">
+                        <p>{createUserStatus}</p>
+                    </div>
+                )}
             </div>
             <div className="teacher-prompt-container">
                 <h3>Create Exercise for Student:</h3>
@@ -319,9 +315,11 @@ function TeacherPage({ onBack }) {
                         <option value="Hard">Hard</option>
                     </select>
                 </label>
-                <textarea value={teacherPrompt} onChange={(e) => setTeacherPrompt(e.target.value)} placeholder=
-                {"Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer collection/ table " +
-                "- or - Create a query which involves the $group function on the collection/ table...')"}/>
+                <textarea 
+                    value={teacherPrompt} 
+                    onChange={(e) => setTeacherPrompt(e.target.value)} 
+                    placeholder={`Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer 
+                    collection/ table - or - Create a query which involves the $group function on the collection/ table...')`} />
                 <button onClick={generateTeacherExercise} disabled={isGenerating}>
                     {isGenerating ? <span className="spinner"></span> : 'Generate Exercise'}
                 </button>
