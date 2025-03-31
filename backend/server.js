@@ -90,25 +90,24 @@ const getUserContext = (userId) => {
     });
 };
 
-// New endpoint to create a student user
-app.post('/create-user', async (req, res) => {
+// New endpoint to create a student user (simplified)
+app.post('/create-user', (req, res) => {
     const { username } = req.body;
 
     if (!username) {
-        return res.status(400).send('Username is required');
+        return res.status(400).json({ message: 'Username is required' });
     }
 
-    try {
-        await getOrCreateUser(username); 
-        res.json({ message: 'Student user created successfully' });
-    } catch (error) {
-        if (error.code === 'SQLITE_CONSTRAINT') {
-            res.status(400).send('Username already exists');
-        } else {
-            console.error(error);
-            res.status(500).send('Error creating user');
+    db.run(`INSERT INTO users (username) VALUES (?)`, [username], function(err) {
+        if (err) {
+            if (err.code === 'SQLITE_CONSTRAINT') {
+                return res.status(400).json({ message: 'Username already exists' });
+            }
+            console.error(err);
+            return res.status(500).json({ message: 'Error creating user' });
         }
-    }
+        res.status(201).json({ message: 'Student user created successfully' });
+    });
 });
 
 // Generate a student exercise based on performance 

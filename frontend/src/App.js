@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
 
-// Initial role selection screen (simplified, no user creation)
+// Initial role selection screen 
 function RoleSelection({ onRoleSelect }) {
     return (
         <div className="role-selection">
@@ -14,7 +14,7 @@ function RoleSelection({ onRoleSelect }) {
     );
 }
 
-// Student dashboard for exercises and submissions (unchanged)
+// Student dashboard for exercises and submissions
 function StudentPage({ onBack }) {
     const [dbType, setDbType] = useState('MongoDB');
     const [username, setUsername] = useState('');
@@ -27,31 +27,33 @@ function StudentPage({ onBack }) {
     const [teacherExercises, setTeacherExercises] = useState([]);
     const [selectedTeacherExercise, setSelectedTeacherExercise] = useState(null);
     const [showTeacherExercises, setShowTeacherExercises] = useState(false);
+    const [statusMessage, setStatusMessage] = useState('');
 
     const generateExercise = async () => {
         if (!username) {
-            alert('Please enter a username');
+            setStatusMessage('Please enter a username');
             return;
         }
         setIsGenerating(true);
+        setStatusMessage('');
         try {
-            const response = await axios.post('http://localhost:5000/generate-exercise', { dbType, username });
-            setQuestion(response.data.question);
-            setAnswer(response.data.answer);
+            const { data } = await axios.post('http://localhost:5000/generate-exercise', { dbType, username });
+            setQuestion(data.question);
+            setAnswer(data.answer);
             setFeedback('');
             setUserAnswer('');
             setSelectedTeacherExercise(null);
             setShowTeacherExercises(false);
             setTeacherExercises([]);
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setTeacherExercises('Error: User not found');
-                setShowTeacherExercises(false);
+            setTeacherExercises(error.response?.data || 'Error generating exercise');
+            setShowTeacherExercises(false);
+            if (error.response?.status === 404) {
+                setStatusMessage('User not found');
             } else {
-                console.error(error);
-                setTeacherExercises('Error generating exercise');
-                setShowTeacherExercises(false);
+                setStatusMessage('Error generating exercise');
             }
+            console.error(error);
         } finally {
             setIsGenerating(false);
         }
@@ -59,12 +61,13 @@ function StudentPage({ onBack }) {
 
     const fetchTeacherExercises = async () => {
         if (!username) {
-            alert('Please enter a username');
+            setStatusMessage('Please enter a username');
             return;
         }
+        setStatusMessage('');
         try {
-            const response = await axios.post('http://localhost:5000/get-teacher-exercises', { username });
-            setTeacherExercises(response.data);
+            const { data } = await axios.post('http://localhost:5000/get-teacher-exercises', { username });
+            setTeacherExercises(data);
             setShowTeacherExercises(true);
             setQuestion('');
             setAnswer('');
@@ -72,14 +75,14 @@ function StudentPage({ onBack }) {
             setUserAnswer('');
             setSelectedTeacherExercise(null);
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setTeacherExercises('Error: User not found');
-                setShowTeacherExercises(false);
+            setTeacherExercises(error.response?.data || 'Error fetching teacher exercises');
+            setShowTeacherExercises(false);
+            if (error.response?.status === 404) {
+                setStatusMessage('User not found');
             } else {
-                console.error(error);
-                setTeacherExercises('Error fetching teacher exercises');
-                setShowTeacherExercises(false);
+                setStatusMessage('Error fetching teacher exercises');
             }
+            console.error(error);
         }
     };
 
@@ -90,6 +93,7 @@ function StudentPage({ onBack }) {
         setFeedback('');
         setUserAnswer('');
         setShowTeacherExercises(false);
+        setStatusMessage('');
     };
 
     const goBackToTeacherExercises = () => {
@@ -99,25 +103,27 @@ function StudentPage({ onBack }) {
         setFeedback('');
         setUserAnswer('');
         setShowTeacherExercises(true);
+        setStatusMessage('');
     };
 
     const evaluateAnswer = async () => {
+        if (!username) {
+            setStatusMessage('Please enter a username');
+            return;
+        }
         setIsEvaluating(true);
+        setStatusMessage('');
         try {
-            const response = await axios.post('http://localhost:5000/evaluate-answer', {
-                question,
-                userAnswer,
-                username,
-                dbType
-            });
-            setFeedback(response.data.feedback);
+            const { data } = await axios.post('http://localhost:5000/evaluate-answer', { question, userAnswer, username, dbType });
+            setFeedback(data.feedback);
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setFeedback('Error: User not found');
+            setFeedback(error.response?.data.feedback || 'Error evaluating answer');
+            if (error.response?.status === 404) {
+                setStatusMessage('User not found');
             } else {
-                console.error(error);
-                setFeedback('Error evaluating answer');
+                setStatusMessage('Error evaluating answer');
             }
+            console.error(error);
         } finally {
             setIsEvaluating(false);
         }
@@ -143,7 +149,11 @@ function StudentPage({ onBack }) {
                 </button>
                 <button onClick={fetchTeacherExercises}>Exercise Queries</button>
             </div>
-
+            {statusMessage && (
+                <div className="status-container">
+                    <p>{statusMessage}</p>
+                </div>
+            )}
             <div className="main-layout">
                 <div className="content-container">
                     {showTeacherExercises && Array.isArray(teacherExercises) && (
@@ -193,81 +203,101 @@ function StudentPage({ onBack }) {
     );
 }
 
-// Teacher dashboard with user creation added
+// Teacher dashboard with simplified user creation
 function TeacherPage({ onBack }) {
     const [username, setUsername] = useState('');
     const [userContext, setUserContext] = useState('');
     const [teacherPrompt, setTeacherPrompt] = useState('');
     const [dbType, setDbType] = useState('MongoDB');
-    const [difficulty, setDifficulty] = useState('Medium');
+    const [difficulty, setDifficulty] = useState('Easy');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [newUsername, setNewUsername] = useState(''); // Moved from RoleSelection
-    const [createUserStatus, setCreateUserStatus] = useState(''); // Moved from RoleSelection
+    const [statusMessage, setStatusMessage] = useState('');
 
-    // Fetch student progress overview
     const showUserContext = async () => {
         if (!username) {
-            alert('Please enter a username');
+            setStatusMessage('Please enter a username');
             return;
         }
+        setStatusMessage('');
         try {
-            const response = await axios.post('http://localhost:5000/user-context', { username });
-            setUserContext(response.data.context);
+            const { data } = await axios.post('http://localhost:5000/user-context', { username });
+            setUserContext(data.context);
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setUserContext('Error: User not found');
+            setUserContext(error.response?.data.context || 'Error fetching user context');
+            if (error.response?.status === 404) {
+                setStatusMessage('User not found');
             } else {
-                console.error(error);
-                setUserContext('Error fetching user context');
+                setStatusMessage('Error fetching user context');
             }
+            console.error(error);
         }
     };
 
-    // Generate a teacher-created exercise
+    const checkUserExists = async () => {
+        try {
+            const { data } = await axios.post('http://localhost:5000/check-user', { username });
+            return data.exists;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    };
+
     const generateTeacherExercise = async () => {
-        if (!username || !teacherPrompt) {
-            alert('Please enter a username and a prompt');
+        if (!username) {
+            setStatusMessage('Please enter a username');
             return;
         }
+        if (!teacherPrompt) {
+            setStatusMessage('Please enter a prompt');
+            return;
+        }
+        setStatusMessage('');
+
+        const userExists = await checkUserExists();
+        if (!userExists) {
+            setStatusMessage('Cannot create exercise: User does not exist');
+            return;
+        }
+
         setIsGenerating(true);
         try {
-            const response = await axios.post('http://localhost:5000/generate-teacher-exercise', {
+            const { data } = await axios.post('http://localhost:5000/generate-teacher-exercise', {
                 username,
                 prompt: teacherPrompt,
                 dbType,
                 difficulty
             });
-            alert(response.data.message);
+            setStatusMessage(data.message);
             setTeacherPrompt('');
         } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setUserContext('Error: User not found');
+            if (error.response?.status === 404) {
+                setStatusMessage('User not found');
             } else {
-                console.error(error);
-                alert('Error generating exercise');
+                setStatusMessage(error.response?.data.message || 'Error generating exercise');
             }
+            console.error(error);
         } finally {
             setIsGenerating(false);
         }
     };
 
-    // Create a new student user (moved from RoleSelection)
     const createUser = async () => {
-        if (!newUsername) {
-            setCreateUserStatus('Error: Please enter a username');
+        if (!username) {
+            setStatusMessage('Please enter a username');
             return;
         }
+        setStatusMessage('');
         try {
-            const response = await axios.post('http://localhost:5000/create-user', { username: newUsername });
-            setCreateUserStatus(response.data.message);
-            setNewUsername(''); // Clear input on success
-        } catch (error) {
-            if (error.response && error.response.status === 400) {
-                setCreateUserStatus('Error: Username already exists');
-            } else {
-                console.error(error);
-                setCreateUserStatus('Error creating user');
+            const { data, status } = await axios.post('http://localhost:5000/create-user', { username });
+            setStatusMessage(data.message);
+            if (status === 201) {
+                setUsername('');
+                setUserContext('');
             }
+        } catch (error) {
+            setStatusMessage(error.response?.data.message || 'Error: Could not create user');
+            console.error(error);
         }
     };
 
@@ -279,25 +309,19 @@ function TeacherPage({ onBack }) {
                 <label>Student Username: <input type="text" value={username} onChange={(e) => 
                     setUsername(e.target.value)} placeholder="Enter student username" /></label>
                 <button onClick={showUserContext}>Show User Progress</button>
+                <button onClick={createUser}>Create User</button>
             </div>
-            <div className="user-creation-container">
-                <h3>Create Student User:</h3>
-                <label>
-                    Username: 
-                    <input 
-                        type="text" 
-                        value={newUsername} 
-                        onChange={(e) => setNewUsername(e.target.value)} 
-                        placeholder="Enter new student username" 
-                    />
-                </label>
-                <button onClick={createUser}>Create Student</button>
-                {createUserStatus && (
-                    <div className="status-container">
-                        <p>{createUserStatus}</p>
-                    </div>
-                )}
-            </div>
+            {statusMessage && (
+                <div className="status-container">
+                    <p>{statusMessage}</p>
+                </div>
+            )}
+            {userContext && (
+                <div className="context-container">
+                    <h3>User Progress Overview:</h3>
+                    <pre>{userContext}</pre>
+                </div>
+            )}
             <div className="teacher-prompt-container">
                 <h3>Create Exercise for Student:</h3>
                 <label>Database: 
@@ -318,18 +342,13 @@ function TeacherPage({ onBack }) {
                 <textarea 
                     value={teacherPrompt} 
                     onChange={(e) => setTeacherPrompt(e.target.value)} 
-                    placeholder={`Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer 
-                    collection/ table - or - Create a query which involves the $group function on the collection/ table...')`} />
+                    placeholder={"Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer" + 
+                    "collection/ table - or - Create a query which involves the $group function on the collection/ table...')"} 
+                />
                 <button onClick={generateTeacherExercise} disabled={isGenerating}>
                     {isGenerating ? <span className="spinner"></span> : 'Generate Exercise'}
                 </button>
             </div>
-            {userContext && (
-                <div className="context-container">
-                    <h3>User Progress Overview:</h3>
-                    <pre>{userContext}</pre>
-                </div>
-            )}
         </div>
     );
 }
@@ -343,7 +362,9 @@ function App() {
 
     return (
         <div className="App">
-            <div className="top-bar"></div>
+            <div className="top-bar">
+                <h1 className="top-bar-title">NoSQLconcepts with LLM</h1>
+            </div>
             {!role && <RoleSelection onRoleSelect={handleRoleSelect} />}
             {role === 'student' && <StudentPage onBack={handleBack} />}
             {role === 'teacher' && <TeacherPage onBack={handleBack} />}
