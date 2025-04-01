@@ -10,6 +10,7 @@
   background-repeat: no-repeat;
   background-position: 98% 75px; 
 }
+
 .top-bar {
   width: 100%;
   height: 60px;
@@ -153,6 +154,8 @@ button:disabled {
   flex-direction: column;
   align-items: center;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .teacher-exercises-container {
@@ -160,18 +163,29 @@ button:disabled {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  height: 280px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  margin: 0 auto; 
 }
+
 
 .teacher-exercises-container ul {
   list-style: none;
   padding: 0;
   text-align: left;
+  width: 100%;
+  margin: 0;
 }
 
 .teacher-exercises-container li {
   padding: 10px;
   cursor: pointer;
   border-bottom: 1px solid #ddd;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .teacher-exercises-container li:hover {
