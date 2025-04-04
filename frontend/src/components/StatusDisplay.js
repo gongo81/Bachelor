@@ -15,12 +15,6 @@ function StatusDisplay({ statusMessage, userContext, feedback }) {
                     <pre>{userContext}</pre>
                 </div>
             )}
-            {feedback && (
-                <div className="feedback-container">
-                    <h3>Feedback:</h3>
-                    <p>{feedback}</p>
-                </div>
-            )}
         </>
     );
 }

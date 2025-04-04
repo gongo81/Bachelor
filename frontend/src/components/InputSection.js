@@ -44,7 +44,7 @@ function InputSection({
             )}
             {action2Label && (
                 <button onClick={onAction2} disabled={action2Disabled}>
-                    {action2Disabled ? <span className="spinner"></span> : action2Label}
+                    {action2Label} {}
                 </button>
             )}
         </div>

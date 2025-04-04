@@ -51,6 +51,14 @@ function StudentPage({ onBack }) {
             setStatusMessage('Please enter a username');
             return;
         }
+        if (isGenerating) {
+            setStatusMessage('Please wait for the exercise to generate before viewing teacher exercises.');
+            return;
+        }
+        if (question && !feedback) {
+            setStatusMessage('Please complete the current exercise (submit and receive feedback) before viewing teacher exercises.');
+            return;
+        }
         setStatusMessage('');
         try {
             const response = await axios.post('http://localhost:5000/api/get-teacher-exercises', { username });
@@ -122,8 +130,9 @@ function StudentPage({ onBack }) {
                 action1Label="Generate Exercise" 
                 action2Label="Exercise Queries" 
                 action1Disabled={isGenerating} 
+                action2Disabled={isGenerating || (question && !feedback)} 
             />
-            <StatusDisplay statusMessage={statusMessage} feedback={feedback} />
+            <StatusDisplay statusMessage={statusMessage} />
             {showTeacherExercises && Array.isArray(teacherExercises) && !selectedTeacherExercise && (
                 <TeacherExercises teacherExercises={teacherExercises} onSelectExercise={selectTeacherExercise} />
             )}
@@ -135,6 +144,7 @@ function StudentPage({ onBack }) {
                 isEvaluating={isEvaluating} 
                 selectedTeacherExercise={selectedTeacherExercise} 
                 onBackToExercises={goBackToTeacherExercises} 
+                feedback={feedback} 
             />
         </div>
     );

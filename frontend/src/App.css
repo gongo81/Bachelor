@@ -112,7 +112,8 @@ button:hover:not(:disabled) {
 }
 
 button:disabled {
-  background-color: #999;
+  background-color: #d3d3d3; /* Light grey for disabled state */
+  color: #666; /* Darker text for contrast */
   cursor: not-allowed;
 }
 
@@ -158,6 +159,19 @@ button:disabled {
   box-sizing: border-box;
 }
 
+.feedback-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 600px; /* Match question-container sizing */
+}
+
 .teacher-exercises-container {
   background-color: #f5f5f5;
   padding: 20px;
@@ -170,7 +184,6 @@ button:disabled {
   overflow-y: auto;
   margin: 0 auto; 
 }
-
 
 .teacher-exercises-container ul {
   list-style: none;
@@ -235,13 +248,6 @@ textarea:focus {
   outline: none;
   border-color: #4a4a4a;
   box-shadow: 0 0 5px rgba(74, 74, 74, 0.3);
-}
-
-.feedback-container {
-  background-color: #f5f5f5;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .context-container {
