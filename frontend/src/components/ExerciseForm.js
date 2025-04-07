@@ -1,5 +1,5 @@
-import React from 'react';
-import '../App.css';
+import React from "react";
+import "../App.css";
 
 function ExerciseForm({ dbType, setDbType, difficulty, setDifficulty, teacherPrompt, setTeacherPrompt, onGenerate, isGenerating }) {
     return (
@@ -25,11 +25,11 @@ function ExerciseForm({ dbType, setDbType, difficulty, setDifficulty, teacherPro
             <textarea 
                 value={teacherPrompt} 
                 onChange={(e) => setTeacherPrompt(e.target.value)} 
-                placeholder={"Enter your prompt for the exercise (e.g., 'Create a query to find all users over 30 from the customer" + 
-                "collection/ table - or - Create a query which involves the $group function on the collection/ table...')"} 
+                placeholder={"Enter your prompt for the exercise (e.g., \"Create a query to find all users over 30 from the customer" + 
+                "collection/ table - or - Create a query which involves the $group function on the collection/ table...\")"} 
             />
             <button onClick={onGenerate} disabled={isGenerating}>
-                {isGenerating ? <span className="spinner"></span> : 'Generate Exercise'}
+                {isGenerating ? <span className="spinner"></span> : "Generate Exercise"}
             </button>
         </div>
     );

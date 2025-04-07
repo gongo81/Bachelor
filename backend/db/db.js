@@ -1,11 +1,11 @@
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require("sqlite3").verbose();
 
-const db = new sqlite3.Database('./exercises.db', (err) => {
+const db = new sqlite3.Database("./exercises.db", (err) => {
     if (err) console.error(err.message);
-    console.log('Connected to SQLite database.');
+    console.log("Connected to SQLite database.");
 });
 
-db.configure('busyTimeout', 5000);
+db.configure("busyTimeout", 5000);
 
 db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +32,7 @@ const getOrCreateUser = (username, createIfNotFound = true) => {
             if (err) return reject(err);
             if (row) return resolve(row.id);
 
-            if (!createIfNotFound) return reject(new Error('User not found'));
+            if (!createIfNotFound) return reject(new Error("User not found"));
 
             db.run(`INSERT INTO users (username) VALUES (?)`, [username], function(err) {
                 if (err) return reject(err);
@@ -53,19 +53,19 @@ const getUserContext = (userId) => {
             const avgDifficulty = total ? rows.reduce((sum, r) => sum + r.difficulty, 0) / total : 1;
 
             const errorCounts = rows.reduce((acc, row) => {
-                if (row.errorType && row.errorType !== 'none') {
+                if (row.errorType && row.errorType !== "none") {
                     acc[row.errorType] = (acc[row.errorType] || 0) + 1;
                 }
                 return acc;
             }, {});
-            const frequentError = Object.entries(errorCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'none';
+            const frequentError = Object.entries(errorCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "none";
 
             const previousInteractions = rows.map(row => 
-                `${row.question} (User Answer: ${row.userAnswer || 'Not answered yet'})`
+                `${row.question} (User Answer: ${row.userAnswer || "Not answered yet"})`
             );
             const previousInteractionsText = previousInteractions.length > 0 
-                ? `Previous interactions (do not repeat these questions): ${previousInteractions.join('; ')}` 
-                : 'No previous interactions yet';
+                ? `Previous interactions (do not repeat these questions): ${previousInteractions.join("; ")}` 
+                : "No previous interactions yet";
 
             const context = `
                 User Performance: ${successRate * 100}% correct, average difficulty: ${avgDifficulty.toFixed(1)}, frequent error: ${frequentError}.

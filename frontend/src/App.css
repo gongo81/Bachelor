@@ -112,8 +112,8 @@ button:hover:not(:disabled) {
 }
 
 button:disabled {
-  background-color: #d3d3d3; /* Light grey for disabled state */
-  color: #666; /* Darker text for contrast */
+  background-color: #d3d3d3; 
+  color: #666;
   cursor: not-allowed;
 }
 
@@ -169,7 +169,7 @@ button:disabled {
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  max-width: 600px; /* Match question-container sizing */
+  max-width: 600px;
 }
 
 .teacher-exercises-container {

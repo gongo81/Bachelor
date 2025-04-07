@@ -1,5 +1,5 @@
-import React from 'react';
-import '../App.css';
+import React from "react";
+import "../App.css";
 
 function ExerciseDisplay({ 
     question, 
@@ -28,7 +28,7 @@ function ExerciseDisplay({
                                 placeholder="Type your answer here" 
                             />
                             <button onClick={onEvaluate} disabled={isEvaluating}>
-                                {isEvaluating ? <span className="spinner"></span> : 'Submit Answer'}
+                                {isEvaluating ? <span className="spinner"></span> : "Submit Answer"}
                             </button>
                         </div>
                         {feedback && (

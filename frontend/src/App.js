@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import RoleSelection from './components/RoleSelection';
-import StudentPage from './pages/StudentPage';
-import TeacherPage from './pages/TeacherPage';
-import './App.css';
+import React, { useState } from "react";
+import RoleSelection from "./components/RoleSelection";
+import StudentPage from "./pages/StudentPage";
+import TeacherPage from "./pages/TeacherPage";
+import "./App.css";
 
 function App() {
     const [role, setRole] = useState(null);
@@ -16,8 +16,8 @@ function App() {
                 <h1 className="top-bar-title">NoSQLconcepts with LLM</h1>
             </div>
             {!role && <RoleSelection onRoleSelect={handleRoleSelect} />}
-            {role === 'student' && <StudentPage onBack={handleBack} />}
-            {role === 'teacher' && <TeacherPage onBack={handleBack} />}
+            {role === "student" && <StudentPage onBack={handleBack} />}
+            {role === "teacher" && <TeacherPage onBack={handleBack} />}
         </div>
     );
 }

@@ -1,5 +1,5 @@
-import React from 'react';
-import '../App.css';
+import React from "react";
+import "../App.css";
 
 function InputSection({ 
     username, 
@@ -18,7 +18,7 @@ function InputSection({
         <div className="input-container">
             <button className="back-button" onClick={onBack}>Back</button>
             <label>
-                {username && 'Username:' || 'Student Username:'} 
+                {username && "Username:" || "Student Username:"} 
                 <input 
                     type="text" 
                     value={username} 
@@ -44,7 +44,7 @@ function InputSection({
             )}
             {action2Label && (
                 <button onClick={onAction2} disabled={action2Disabled}>
-                    {action2Label} {}
+                    {action2Label}
                 </button>
             )}
         </div>

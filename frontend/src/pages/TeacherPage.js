@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import InputSection from '../components/InputSection';
-import StatusDisplay from '../components/StatusDisplay';
-import ExerciseForm from '../components/ExerciseForm';
-import '../App.css';
+import React, { useState } from "react";
+import axios from "axios";
+import InputSection from "../components/InputSection";
+import StatusDisplay from "../components/StatusDisplay";
+import ExerciseForm from "../components/ExerciseForm";
+import "../App.css";
 
 function TeacherPage({ onBack }) {
-    const [username, setUsername] = useState('');
-    const [userContext, setUserContext] = useState('');
-    const [teacherPrompt, setTeacherPrompt] = useState('');
-    const [dbType, setDbType] = useState('MongoDB');
-    const [difficulty, setDifficulty] = useState('Easy');
+    const [username, setUsername] = useState("");
+    const [userContext, setUserContext] = useState("");
+    const [teacherPrompt, setTeacherPrompt] = useState("");
+    const [dbType, setDbType] = useState("MongoDB");
+    const [difficulty, setDifficulty] = useState("Easy");
     const [isGenerating, setIsGenerating] = useState(false);
-    const [statusMessage, setStatusMessage] = useState('');
+    const [statusMessage, setStatusMessage] = useState("");
 
     const showUserContext = async () => {
         if (!username) {
-            setStatusMessage('Please enter a username');
+            setStatusMessage("Please enter a username");
             return;
         }
-        setStatusMessage('');
+        setStatusMessage("");
         try {
-            const response = await axios.post('http://localhost:5000/api/user-context', { username });
+            const response = await axios.post("http://localhost:5000/api/user-context", { username });
             const data = response.data;
             setUserContext(data.context);
         } catch (error) {
-            setStatusMessage(error.response?.status === 404 ? 'User not found' : error.response?.data.context || 'Error fetching user context');
+            setStatusMessage(error.response?.status === 404 ? "User not found" : error.response?.data.context || "Error fetching user context");
             console.error(error);
         }
     };
 
     const checkUserExists = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/api/check-user', { username });
+            const response = await axios.post("http://localhost:5000/api/check-user", { username });
             const data = response.data;
             return data.exists;
         } catch (error) {
@@ -43,22 +43,22 @@ function TeacherPage({ onBack }) {
 
     const generateTeacherExercise = async () => {
         if (!username) {
-            setStatusMessage('Please enter a username');
+            setStatusMessage("Please enter a username");
             return;
         }
         if (!teacherPrompt) {
-            setStatusMessage('Please enter a prompt');
+            setStatusMessage("Please enter a prompt");
             return;
         }
-        setStatusMessage('');
+        setStatusMessage("");
         const userExists = await checkUserExists();
         if (!userExists) {
-            setStatusMessage('Cannot create exercise: User does not exist');
+            setStatusMessage("Cannot create exercise: User does not exist");
             return;
         }
         setIsGenerating(true);
         try {
-            const response = await axios.post('http://localhost:5000/api/generate-teacher-exercise', {
+            const response = await axios.post("http://localhost:5000/api/generate-teacher-exercise", {
                 username,
                 prompt: teacherPrompt,
                 dbType,
@@ -66,9 +66,9 @@ function TeacherPage({ onBack }) {
             });
             const data = response.data;
             setStatusMessage(data.message);
-            setTeacherPrompt('');
+            setTeacherPrompt("");
         } catch (error) {
-            setStatusMessage(error.response?.status === 404 ? 'User not found' : error.response?.data.message || 'Error generating exercise');
+            setStatusMessage(error.response?.status === 404 ? "User not found" : error.response?.data.message || "Error generating exercise");
             console.error(error);
         } finally {
             setIsGenerating(false);
@@ -77,21 +77,21 @@ function TeacherPage({ onBack }) {
 
     const createUser = async () => {
         if (!username) {
-            setStatusMessage('Please enter a username');
+            setStatusMessage("Please enter a username");
             return;
         }
-        setStatusMessage('');
+        setStatusMessage("");
         try {
-            const response = await axios.post('http://localhost:5000/api/create-user', { username });
+            const response = await axios.post("http://localhost:5000/api/create-user", { username });
             const data = response.data;
             const status = response.status;
             setStatusMessage(data.message);
             if (status === 201) {
-                setUsername('');
-                setUserContext('');
+                setUsername("");
+                setUserContext("");
             }
         } catch (error) {
-            setStatusMessage(error.response?.data.message || 'Error: Could not create user');
+            setStatusMessage(error.response?.data.message || "Error: Could not create user");
             console.error(error);
         }
     };
