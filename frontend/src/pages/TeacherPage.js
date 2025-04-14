@@ -3,6 +3,7 @@ import axios from "axios";
 import InputSection from "../components/InputSection";
 import StatusDisplay from "../components/StatusDisplay";
 import ExerciseForm from "../components/ExerciseForm";
+import UserContext from "../components/UserContext"; 
 import "../App.css";
 
 function TeacherPage({ onBack }) {
@@ -109,12 +110,7 @@ function TeacherPage({ onBack }) {
                 action2Label="Create User" 
             />
             <StatusDisplay statusMessage={statusMessage} />
-            {userContext && (
-                <div className="context-container">
-                    <h3>User Progress Overview:</h3>
-                    <pre>{userContext}</pre>
-                </div>
-            )}
+            <UserContext userContext={userContext} /> 
             <ExerciseForm 
                 dbType={dbType} 
                 setDbType={setDbType} 

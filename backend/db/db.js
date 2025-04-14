@@ -7,6 +7,7 @@ const db = new sqlite3.Database("./exercises.db", (err) => {
 
 db.configure("busyTimeout", 5000);
 
+// Create tables
 db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE
@@ -26,6 +27,32 @@ db.run(`CREATE TABLE IF NOT EXISTS exercises (
     FOREIGN KEY (userId) REFERENCES users(id)
 )`);
 
+// Create a user
+const createUser = (username) => {
+    return new Promise((resolve, reject) => {
+        db.run(`INSERT INTO users (username) VALUES (?)`, [username], function (err) {
+            if (err) {
+                if (err.code === "SQLITE_CONSTRAINT") {
+                    return reject(new Error("Username already exists"));
+                }
+                return reject(err);
+            }
+            resolve({ message: "Student user created successfully" });
+        });
+    });
+};
+
+// Check if a user exists
+const checkUserExists = (username) => {
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT id FROM users WHERE username = ?`, [username], (err, row) => {
+            if (err) return reject(err);
+            resolve(!!row);
+        });
+    });
+};
+
+// Get or create a user
 const getOrCreateUser = (username, createIfNotFound = true) => {
     return new Promise((resolve, reject) => {
         db.get(`SELECT id FROM users WHERE username = ?`, [username], (err, row) => {
@@ -34,7 +61,7 @@ const getOrCreateUser = (username, createIfNotFound = true) => {
 
             if (!createIfNotFound) return reject(new Error("User not found"));
 
-            db.run(`INSERT INTO users (username) VALUES (?)`, [username], function(err) {
+            db.run(`INSERT INTO users (username) VALUES (?)`, [username], function (err) {
                 if (err) return reject(err);
                 resolve(this.lastID);
             });
@@ -42,13 +69,14 @@ const getOrCreateUser = (username, createIfNotFound = true) => {
     });
 };
 
+// Get user context
 const getUserContext = (userId) => {
     return new Promise((resolve, reject) => {
         db.all(`SELECT difficulty, isCorrect, errorType, question, userAnswer FROM exercises WHERE userId = ?`, [userId], (err, rows) => {
             if (err) return reject(err);
 
             const total = rows.length;
-            const correct = rows.filter(r => r.isCorrect === 1).length;
+            const correct = rows.filter((r) => r.isCorrect === 1).length;
             const successRate = total ? correct / total : 0;
             const avgDifficulty = total ? rows.reduce((sum, r) => sum + r.difficulty, 0) / total : 1;
 
@@ -60,12 +88,8 @@ const getUserContext = (userId) => {
             }, {});
             const frequentError = Object.entries(errorCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "none";
 
-            const previousInteractions = rows.map(row => 
-                `${row.question} (User Answer: ${row.userAnswer || "Not answered yet"})`
-            );
-            const previousInteractionsText = previousInteractions.length > 0 
-                ? `Previous interactions (do not repeat these questions): ${previousInteractions.join("; ")}` 
-                : "No previous interactions yet";
+            const previousInteractions = rows.map((row) => `${row.question} (User Answer: ${row.userAnswer || "Not answered yet"})`);
+            const previousInteractionsText = previousInteractions.length > 0 ? `Previous interactions (do not repeat these questions): ${previousInteractions.join("; ")}` : "No previous interactions yet";
 
             const context = `
                 User Performance: ${successRate * 100}% correct, average difficulty: ${avgDifficulty.toFixed(1)}, frequent error: ${frequentError}.
@@ -77,4 +101,66 @@ const getUserContext = (userId) => {
     });
 };
 
-module.exports = { db, getOrCreateUser, getUserContext };
+// Insert an exercise
+const insertExercise = (userId, question, answer, difficulty, isTeacherCreated) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `INSERT INTO exercises (userId, question, answer, difficulty, isTeacherCreated) VALUES (?, ?, ?, ?, ?)`,
+            [userId, question, answer, difficulty, isTeacherCreated],
+            (err) => {
+                if (err) return reject(err);
+                resolve();
+            }
+        );
+    });
+};
+
+// Get teacher-created exercises
+const getTeacherExercises = (userId) => {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT question, answer FROM exercises WHERE userId = ? AND isTeacherCreated = 1 AND userAnswer IS NULL`,
+            [userId],
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
+    });
+};
+
+// Get correct answer for a question
+const getCorrectAnswer = (userId, question) => {
+    return new Promise((resolve, reject) => {
+        db.get(`SELECT answer FROM exercises WHERE question = ? AND userId = ?`, [question, userId], (err, row) => {
+            if (err) return reject(err);
+            resolve(row?.answer.trim() || "");
+        });
+    });
+};
+
+// Update exercise with user answer and feedback
+const updateExerciseAnswer = (userId, question, userAnswer, feedback, isCorrect, errorType) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `UPDATE exercises SET userAnswer = ?, feedback = ?, isCorrect = ?, errorType = ? WHERE question = ? AND userId = ?`,
+            [userAnswer, feedback, isCorrect, errorType, question, userId],
+            (err) => {
+                if (err) return reject(err);
+                resolve();
+            }
+        );
+    });
+};
+
+module.exports = {
+    db,
+    createUser,
+    checkUserExists,
+    getOrCreateUser,
+    getUserContext,
+    insertExercise,
+    getTeacherExercises,
+    getCorrectAnswer,
+    updateExerciseAnswer,
+};
