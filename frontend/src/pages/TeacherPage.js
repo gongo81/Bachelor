@@ -108,7 +108,13 @@ function TeacherPage({ onBack }) {
                 action1Label="Show User Progress" 
                 action2Label="Create User" 
             />
-            <StatusDisplay statusMessage={statusMessage} userContext={userContext} />
+            <StatusDisplay statusMessage={statusMessage} />
+            {userContext && (
+                <div className="context-container">
+                    <h3>User Progress Overview:</h3>
+                    <pre>{userContext}</pre>
+                </div>
+            )}
             <ExerciseForm 
                 dbType={dbType} 
                 setDbType={setDbType} 
