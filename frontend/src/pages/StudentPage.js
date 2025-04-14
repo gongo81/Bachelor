@@ -27,19 +27,17 @@ function StudentPage({ onBack }) {
         }
         setIsGenerating(true);
         setStatusMessage("");
+        setShowTeacherExercises(false);
+        setSelectedTeacherExercise(null);
         try {
-            const response = await axios.post("http://localhost:5000/api/generate-exercise", { dbType, username });
+            const response = await axios.post("http://localhost:5000/api/exercises", { dbType, username });
             const data = response.data;
             setQuestion(data.question);
             setAnswer(data.answer);
             setFeedback("");
             setUserAnswer("");
-            setSelectedTeacherExercise(null);
-            setShowTeacherExercises(false);
-            setTeacherExercises([]);
         } catch (error) {
             setStatusMessage(error.response?.status === 404 ? "User not found" : error.response?.data || "Error generating exercise");
-            setShowTeacherExercises(false);
             console.error(error);
         } finally {
             setIsGenerating(false);
@@ -61,7 +59,7 @@ function StudentPage({ onBack }) {
         }
         setStatusMessage("");
         try {
-            const response = await axios.post("http://localhost:5000/api/get-teacher-exercises", { username });
+            const response = await axios.get(`http://localhost:5000/api/users/${username}/teacher-exercises`);
             const data = response.data;
             setTeacherExercises(data);
             setShowTeacherExercises(true);
@@ -81,20 +79,18 @@ function StudentPage({ onBack }) {
         setSelectedTeacherExercise(exercise);
         setQuestion(exercise.question);
         setAnswer(exercise.answer);
-        setFeedback("");
         setUserAnswer("");
+        setFeedback("");
         setShowTeacherExercises(false);
-        setStatusMessage("");
     };
 
     const goBackToTeacherExercises = () => {
-        setSelectedTeacherExercise(null);
         setQuestion("");
         setAnswer("");
-        setFeedback("");
         setUserAnswer("");
+        setFeedback("");
+        setSelectedTeacherExercise(null);
         setShowTeacherExercises(true);
-        setStatusMessage("");
     };
 
     const evaluateAnswer = async () => {
@@ -105,7 +101,7 @@ function StudentPage({ onBack }) {
         setIsEvaluating(true);
         setStatusMessage("");
         try {
-            const response = await axios.post("http://localhost:5000/api/evaluate-answer", { question, userAnswer, username, dbType });
+            const response = await axios.post("http://localhost:5000/api/exercises/evaluate", { question, userAnswer, username, dbType });
             const data = response.data;
             setFeedback(data.feedback);
         } catch (error) {
@@ -119,32 +115,36 @@ function StudentPage({ onBack }) {
     return (
         <div className="student-page">
             <h1>Student Dashboard</h1>
-            <InputSection 
-                username={username} 
-                setUsername={setUsername} 
-                dbType={dbType} 
-                setDbType={setDbType} 
-                onBack={onBack} 
-                onAction1={generateExercise} 
-                onAction2={fetchTeacherExercises} 
-                action1Label="Generate Exercise" 
-                action2Label="Exercise Queries" 
-                action1Disabled={isGenerating} 
-                action2Disabled={isGenerating || (question && !feedback && !selectedTeacherExercise)} 
+            <InputSection
+                username={username}
+                setUsername={setUsername}
+                dbType={dbType}
+                setDbType={setDbType}
+                showDbType={true}
+                onBack={onBack}
+                onAction1={generateExercise}
+                onAction2={fetchTeacherExercises}
+                action1Label="Generate Exercise"
+                action2Label="Exercise Queries"
+                action1Disabled={isGenerating}
+                action2Disabled={isGenerating || (question && !feedback && !selectedTeacherExercise)}
             />
-            <StatusDisplay statusMessage={statusMessage} />
-            {showTeacherExercises && Array.isArray(teacherExercises) && !selectedTeacherExercise && (
-                <TeacherExercises teacherExercises={teacherExercises} onSelectExercise={selectTeacherExercise} />
+            <StatusDisplay statusMessage={statusMessage} feedback={feedback} />
+            {showTeacherExercises && (
+                <TeacherExercises
+                    teacherExercises={teacherExercises}
+                    onSelectExercise={selectTeacherExercise}
+                />
             )}
-            <ExerciseDisplay 
-                question={question} 
-                userAnswer={userAnswer} 
-                setUserAnswer={setUserAnswer} 
-                onEvaluate={evaluateAnswer} 
-                isEvaluating={isEvaluating} 
-                selectedTeacherExercise={selectedTeacherExercise} 
-                onBackToExercises={goBackToTeacherExercises} 
-                feedback={feedback} 
+            <ExerciseDisplay
+                question={question}
+                userAnswer={userAnswer}
+                setUserAnswer={setUserAnswer}
+                feedback={feedback}
+                onEvaluate={evaluateAnswer}
+                isEvaluating={isEvaluating}
+                selectedTeacherExercise={selectedTeacherExercise}
+                onBackToExercises={goBackToTeacherExercises}
             />
         </div>
     );

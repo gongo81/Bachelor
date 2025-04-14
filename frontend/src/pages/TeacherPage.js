@@ -3,7 +3,7 @@ import axios from "axios";
 import InputSection from "../components/InputSection";
 import StatusDisplay from "../components/StatusDisplay";
 import ExerciseForm from "../components/ExerciseForm";
-import UserContext from "../components/UserContext"; 
+import UserContext from "../components/UserContext";
 import "../App.css";
 
 function TeacherPage({ onBack }) {
@@ -22,7 +22,7 @@ function TeacherPage({ onBack }) {
         }
         setStatusMessage("");
         try {
-            const response = await axios.post("http://localhost:5000/api/user-context", { username });
+            const response = await axios.get(`http://localhost:5000/api/users/${username}/context`);
             const data = response.data;
             setUserContext(data.context);
         } catch (error) {
@@ -33,7 +33,7 @@ function TeacherPage({ onBack }) {
 
     const checkUserExists = async () => {
         try {
-            const response = await axios.post("http://localhost:5000/api/check-user", { username });
+            const response = await axios.get(`http://localhost:5000/api/users/${username}/exists`);
             const data = response.data;
             return data.exists;
         } catch (error) {
@@ -59,11 +59,11 @@ function TeacherPage({ onBack }) {
         }
         setIsGenerating(true);
         try {
-            const response = await axios.post("http://localhost:5000/api/generate-teacher-exercise", {
+            const response = await axios.post("http://localhost:5000/api/teacher-exercises", {
                 username,
                 prompt: teacherPrompt,
                 dbType,
-                difficulty
+                difficulty,
             });
             const data = response.data;
             setStatusMessage(data.message);
@@ -83,7 +83,7 @@ function TeacherPage({ onBack }) {
         }
         setStatusMessage("");
         try {
-            const response = await axios.post("http://localhost:5000/api/create-user", { username });
+            const response = await axios.post("http://localhost:5000/api/users", { username });
             const data = response.data;
             const status = response.status;
             setStatusMessage(data.message);
@@ -100,26 +100,26 @@ function TeacherPage({ onBack }) {
     return (
         <div className="teacher-page">
             <h1>Teacher Dashboard</h1>
-            <InputSection 
-                username={username} 
-                setUsername={setUsername} 
-                onBack={onBack} 
-                onAction1={showUserContext} 
-                onAction2={createUser} 
-                action1Label="Show User Progress" 
-                action2Label="Create User" 
+            <InputSection
+                username={username}
+                setUsername={setUsername}
+                onBack={onBack}
+                onAction1={showUserContext}
+                onAction2={createUser}
+                action1Label="Show User Progress"
+                action2Label="Create User"
             />
             <StatusDisplay statusMessage={statusMessage} />
-            <UserContext userContext={userContext} /> 
-            <ExerciseForm 
-                dbType={dbType} 
-                setDbType={setDbType} 
-                difficulty={difficulty} 
-                setDifficulty={setDifficulty} 
-                teacherPrompt={teacherPrompt} 
-                setTeacherPrompt={setTeacherPrompt} 
-                onGenerate={generateTeacherExercise} 
-                isGenerating={isGenerating} 
+            <UserContext userContext={userContext} />
+            <ExerciseForm
+                dbType={dbType}
+                setDbType={setDbType}
+                difficulty={difficulty}
+                setDifficulty={setDifficulty}
+                teacherPrompt={teacherPrompt}
+                setTeacherPrompt={setTeacherPrompt}
+                onGenerate={generateTeacherExercise}
+                isGenerating={isGenerating}
             />
         </div>
     );

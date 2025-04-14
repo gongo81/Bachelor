@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const {
     createUser,
+    deleteUser,
     checkUserExists,
     getOrCreateUser,
     getUserContext,
@@ -13,7 +14,8 @@ const {
 
 const router = express.Router();
 
-router.post("/create-user", async (req, res) => {
+// Create a new user
+router.post("/users", async (req, res) => {
     const { username } = req.body;
 
     if (!username) {
@@ -32,7 +34,37 @@ router.post("/create-user", async (req, res) => {
     }
 });
 
-router.post("/generate-exercise", async (req, res) => {
+// Delete a user
+router.delete("/users/:username", async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const result = await deleteUser(username);
+        res.json(result);
+    } catch (error) {
+        if (error.message === "User not found") {
+            return res.status(404).json({ message: "User not found" });
+        }
+        console.error(error);
+        res.status(500).json({ message: "Error deleting user" });
+    }
+});
+
+// Check if a user exists
+router.get("/users/:username/exists", async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const exists = await checkUserExists(username);
+        res.json({ exists });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ exists: false, message: "Error checking user" });
+    }
+});
+
+// Generate an LLM exercise
+router.post("/exercises", async (req, res) => {
     const { dbType, username } = req.body;
 
     try {
@@ -73,7 +105,8 @@ router.post("/generate-exercise", async (req, res) => {
     }
 });
 
-router.post("/generate-teacher-exercise", async (req, res) => {
+// Generate a teacher exercise
+router.post("/teacher-exercises", async (req, res) => {
     const { username, prompt, dbType, difficulty } = req.body;
 
     try {
@@ -109,8 +142,9 @@ router.post("/generate-teacher-exercise", async (req, res) => {
     }
 });
 
-router.post("/get-teacher-exercises", async (req, res) => {
-    const { username } = req.body;
+// Get teacher-created exercises
+router.get("/users/:username/teacher-exercises", async (req, res) => {
+    const { username } = req.params;
 
     try {
         const userId = await getOrCreateUser(username, false);
@@ -126,7 +160,8 @@ router.post("/get-teacher-exercises", async (req, res) => {
     }
 });
 
-router.post("/evaluate-answer", async (req, res) => {
+// Evaluate an answer
+router.post("/exercises/evaluate", async (req, res) => {
     const { question, userAnswer, username, dbType } = req.body;
 
     try {
@@ -174,8 +209,9 @@ router.post("/evaluate-answer", async (req, res) => {
     }
 });
 
-router.post("/user-context", async (req, res) => {
-    const { username } = req.body;
+// Get user context
+router.get("/users/:username/context", async (req, res) => {
+    const { username } = req.params;
 
     try {
         const userId = await getOrCreateUser(username, false);
@@ -188,22 +224,6 @@ router.post("/user-context", async (req, res) => {
             console.error(error);
             res.status(500).send("Error fetching user context");
         }
-    }
-});
-
-router.post("/check-user", async (req, res) => {
-    const { username } = req.body;
-
-    if (!username) {
-        return res.status(400).json({ exists: false, message: "Username is required" });
-    }
-
-    try {
-        const exists = await checkUserExists(username);
-        res.json({ exists });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ exists: false, message: "Error checking user" });
     }
 });
 

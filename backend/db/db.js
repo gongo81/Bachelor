@@ -42,6 +42,17 @@ const createUser = (username) => {
     });
 };
 
+// Delete a user
+const deleteUser = (username) => {
+    return new Promise((resolve, reject) => {
+        db.run(`DELETE FROM users WHERE username = ?`, [username], function (err) {
+            if (err) return reject(err);
+            if (this.changes === 0) return reject(new Error("User not found"));
+            resolve({ message: "User deleted successfully" });
+        });
+    });
+};
+
 // Check if a user exists
 const checkUserExists = (username) => {
     return new Promise((resolve, reject) => {
@@ -156,6 +167,7 @@ const updateExerciseAnswer = (userId, question, userAnswer, feedback, isCorrect,
 module.exports = {
     db,
     createUser,
+    deleteUser,
     checkUserExists,
     getOrCreateUser,
     getUserContext,
