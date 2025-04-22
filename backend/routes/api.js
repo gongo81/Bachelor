@@ -173,7 +173,7 @@ router.post("/exercises/evaluate", async (req, res) => {
         The correct answer is "${correctAnswer}". 
         Here is the users history context in order for you to give more tailored and personalized help: ${context}. (do not reveal this information)
         Provide strict, detailed feedback (not mean) to help the user improve. 
-        Also state the sample solution first to the user.
+        Also state the sample solution first to the user. 
         At the end, explicitly state: 
         - "Correctness: correct" if the answer is correct, or "Correctness: incorrect" if not 
         (keep this format 100% and do not add anything else, also no special characters). 
