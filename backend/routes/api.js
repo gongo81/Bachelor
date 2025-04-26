@@ -76,11 +76,24 @@ router.post("/exercises", async (req, res) => {
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
             model: "llama3.1:latest",
-            prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query exercise with a question and answer. 
-            Format it as: "Question: [question text]\nAnswer: [answer text]" and please make sure that the actual answer is only given after "Answer:". 
-            Take this as example: {Question: Find the total number of documents in the collection where the value in the "score" field is greater than 80.
-            Answer: db.collection.aggregate([{$group: {_id: null, count: {$sum: 1}}}, {$match: {"$expr": "$score > 80"}}])}.
-            Here is the users history context in order for you to give more tailored and personalized help: ${context}. (do not reveal this information)`,
+            prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query exercise with 
+            a question and answer, tailored to the user's learning level based on their history context: ${context} (do not reveal this information). 
+            Format it strictly as: "Question: [question text]\nAnswer: [answer text]" with no additional text or special characters, 
+            and ensure the answer appears only after "Answer:".
+            - Easy: Basic queries (e.g., simple filters or single-node searches).
+            - Medium: Moderate queries (e.g., aggregations, multi-step queries, or basic relationships).
+            - Hard: Complex queries (e.g., advanced aggregations, multi-node traversals, or optimization).
+            Do not repeat any questions from the user's history provided in the context: ${context} (do not reveal this information).
+            Ensure the question is clear, concise, and educational, suitable for a student learning ${dbType}.
+            Use these examples for guidance:
+            - MongoDB: Question: List all products in the "products" collection with a price less than 50.
+            Answer: db.products.find({ price: { $lt: 50 } })
+            - Neo4J: Question: Find all nodes labeled "Movie" released after 2010.
+            Answer: MATCH (m:Movie) WHERE m.released > 2010 RETURN m
+            - Cassandra: Question: Retrieve all products from the "products" table where the price is less than 50.
+            Answer: SELECT * FROM products WHERE price < 50 ALLOW FILTERING
+            - PostgreSQL: Question: Select all products from the "products" table where the price is less than 50.
+            Answer: SELECT * FROM products WHERE price < 50.`,
             stream: false,
         });
 
@@ -114,10 +127,25 @@ router.post("/teacher-exercises", async (req, res) => {
         const difficultyNum = difficulty === "Easy" ? 1 : difficulty === "Medium" ? 2 : 3;
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
             model: "llama3.1:latest",
-            prompt: `Based on the following teacher input: "${prompt}", generate a ${difficulty.toLowerCase()} ${dbType} query exercise with a question and answer. 
-            Format it as: "Question: [question text]\nAnswer: [answer text]" and please make sure that just the actual answer is given after "Answer:".
-            Take this as example: {Question: Find the total number of documents in the collection where the value in the "score" field is greater than 80.
-            Answer: db.collection.aggregate([{$group: {_id: null, count: {$sum: 1}}}, {$match: {"$expr": "$score > 80"}}])}.`,
+            prompt: `Based on the teacher input: "${prompt}", generate a ${difficulty.toLowerCase()} ${dbType} 
+            query exercise with a question and answer, tailored to the user's learning level using their history context: ${context} (do not reveal this information).
+            Format it strictly as: "Question: [question text]\nAnswer: [answer text]" with no additional text or special characters,
+            and ensure the answer appears only after "Answer:".
+            - Easy: Basic queries (e.g., simple filters or single-node searches).
+            - Medium: Moderate queries (e.g., aggregations, multi-step queries, or basic relationships).
+            - Hard: Complex queries (e.g., advanced aggregations, multi-node traversals, or optimization).
+            Use the teacher input as a theme or direct inspiration for the question, ensuring it aligns with the specified difficulty.
+            Do not repeat any questions from the user's history.
+            Ensure the question is clear, concise, and educational, suitable for a student learning ${dbType}.
+            Use these examples for guidance:
+            - MongoDB: Question: List all products in the "products" collection with a price less than 50.
+            Answer: db.products.find({ price: { $lt: 50 } })
+            - Neo4J: Question: Find all nodes labeled "Movie" released after 2010.
+            Answer: MATCH (m:Movie) WHERE m.released > 2010 RETURN m
+            - Cassandra: Question: Retrieve all products from the "products" table where the price is less than 50.
+            Answer: SELECT * FROM products WHERE price < 50 ALLOW FILTERING
+            - PostgreSQL: Question: Select all products from the "products" table where the price is less than 50.
+            Answer: SELECT * FROM products WHERE price < 50.`,
             stream: false,
         });
 
@@ -169,17 +197,24 @@ router.post("/exercises/evaluate", async (req, res) => {
         const { context } = await getUserContext(userId);
         const correctAnswer = await getCorrectAnswer(userId, question);
 
-        const prompt = `Evaluate this answer from the user: "${userAnswer}", for the question: "${question}". 
-        The correct answer is "${correctAnswer}". 
-        Here is the users history context in order for you to give more tailored and personalized help: ${context}. (do not reveal this information)
-        Provide strict, detailed feedback (not mean) to help the user improve. 
-        Also state the sample solution first to the user. 
-        At the end, explicitly state: 
-        - "Correctness: correct" if the answer is correct, or "Correctness: incorrect" if not 
-        (keep this format 100% and do not add anything else, also no special characters). 
-        Dont be too strict regarding the correctness of the userAnswer, as long as the general userAnswer would run correctly 
-        and give the wanted output then count it as correct, it does not necessarily have to be the exact same code as the correctAnswer.
-        - "ErrorType: [syntax, logic, concept, or none]" based on the error (use "none" if correct).`;
+        const prompt = `Evaluate the user's answer: "${userAnswer}" for the question: "${question}", with the correct answer: "${correctAnswer}".
+        Use the user's history context: ${context} (do not reveal this information) to provide personalized, encouraging feedback, acting as a supportive learning assistant.
+        Also give the user some hints and direction what his mistake is and how to improve it in order to understand the correct solution (not mean).
+        Format the response as follows:
+        - First, state the sample solution: "Sample Solution: ${correctAnswer}"
+        - Provide detailed, user-friendly feedback (strict but kind) to help the user improve.
+        - Explain any errors, referencing patterns from the user's history (e.g., "You've had syntax errors before, like in...").
+        - Offer specific hints (e.g., "Check the syntax for ${dbType} filters") and actionable steps (e.g., "Review ${dbType} documentation on aggregations at [link]").
+        - End with:
+        - Correctness: correct (no need to be too harsh on the correctness -> if the answer runs and produces the correct output thats good enough) or Correctness: incorrect
+        - ErrorType: syntax, logic, concept, or none (based on the error; use "none" if correct)
+        Ensure feedback is clear, educational, and avoids overly technical terms. Use these examples:
+        - MongoDB: If the user wrote "db.users.find(age > 25)", suggest: "The syntax needs curly braces: { age: { $gt: 25 } }."
+        - Neo4J: If the user wrote "MATCH p:Person WHERE p.age > 25", suggest: "Add parentheses around the node: (p:Person)."
+        - Cassandra: If the user wrote "SELECT * FROM products WHERE price < 50", suggest: "You forgot ALLOW FILTERING, which is 
+        needed for non-primary key filters in Cassandra: SELECT * FROM products WHERE price < 50 ALLOW FILTERING."
+        - PostgreSQL: If the user wrote "SELECT * FROM products WHERE price < 50;", suggest: "Your query is correct but includes an 
+        unnecessary semicolon for this context. Use: SELECT * FROM products WHERE price < 50."`
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
             model: "llama3.1:latest",
