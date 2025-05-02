@@ -100,13 +100,17 @@ const getUserContext = (userId) => {
             const frequentError = Object.entries(errorCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "none";
 
             const previousInteractions = rows.map((row) => `${row.question} (User Answer: ${row.userAnswer || "Not answered yet"})`);
-            const previousInteractionsText = previousInteractions.length > 0 ? `Previous interactions (do not repeat these questions): 
-            ${previousInteractions.join("; ")}` : "No previous interactions yet";
 
-            const context = `
-                User Performance: ${successRate * 100}% correct, average difficulty: ${avgDifficulty.toFixed(1)}, frequent error: ${frequentError}.
-                Previous asked questions: ${previousInteractionsText}.
-            `.trim();
+            const context = 
+`User Performance Overview
+-------------------------
+- Success Rate: ${(successRate * 100).toFixed(1)}%
+- Average Difficulty: ${avgDifficulty.toFixed(1)}
+- Most Frequent Error: ${frequentError}
+
+Previous Interactions
+---------------------
+${previousInteractions.map((entry, i) => `${i + 1}. ${entry}`).join("\n \n")}`;
 
             resolve({ context, successRate });
         });
