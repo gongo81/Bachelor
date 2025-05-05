@@ -73,7 +73,7 @@ router.post("/exercises", async (req, res) => {
         const difficulty = successRate > 0.8 ? 3 : successRate > 0.5 ? 2 : 1;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "llama3.1:latest",
+            model: "gemma3:4b",
             prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query exercise with 
             a question and answer, tailored to the user's learning level based on their history context: ${context} (do not reveal this information). 
             Format it strictly as: "Question: [question text]\nAnswer: [answer text]" with no additional text or special characters, 
@@ -123,7 +123,7 @@ router.post("/teacher-exercises", async (req, res) => {
         const userId = await getOrCreateUser(username, false);
         const difficultyNum = difficulty === "Easy" ? 1 : difficulty === "Medium" ? 2 : 3;
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "llama3.1:latest",
+            model: "gemma3:4b",
             prompt: `Based on the teacher input: "${prompt}", generate a ${difficulty.toLowerCase()} ${dbType} 
             query exercise with a question and answer, tailored to the user's learning level using their history context: ${context} (do not reveal this information).
             Format it strictly as: "Question: [question text]\nAnswer: [answer text]" with no additional text or special characters,
@@ -202,6 +202,7 @@ router.post("/exercises/evaluate", async (req, res) => {
             4. Correctness: [correct if the answer runs and produces the correct output; otherwise incorrect]
             5. ErrorType: [syntax, logic, concept, or none; use "none" if correct]
 
+            Accept alternative correct solutions that differ in syntax or style from the sample, as long as they would run correctly on the specified database and yield the intended result.
             Ensure each section is on a new line, labeled exactly as shown, and contains only the specified content. Use these examples for guidance:
             - MongoDB:
             1. Sample Solution: db.users.find({ age: { $gt: 25 } })
@@ -230,7 +231,7 @@ router.post("/exercises/evaluate", async (req, res) => {
             Ensure feedback is clear, educational, and supportive.`;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "llama3.1:latest",
+            model: "gemma3:4b",
             prompt,
             stream: false,
         });
