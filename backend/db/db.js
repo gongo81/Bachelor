@@ -86,19 +86,30 @@ const getUserContext = (userId) => {
         db.all(`SELECT difficulty, isCorrect, errorType, question, userAnswer FROM exercises WHERE userId = ?`, [userId], (err, rows) => {
             if (err) return reject(err);
 
+            // Calculate successrate and avgdifficulty
             const total = rows.length;
             const correct = rows.filter((r) => r.isCorrect === 1).length;
             const successRate = total ? correct / total : 0;
             const avgDifficulty = total ? rows.reduce((sum, r) => sum + r.difficulty, 0) / total : 1;
 
-            const errorCounts = rows.reduce((acc, row) => {
-                if (row.errorType && row.errorType !== "none") {
-                    acc[row.errorType] = (acc[row.errorType] || 0) + 1;
-                }
-                return acc;
-            }, {});
-            const frequentError = Object.entries(errorCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "none";
+            // Calculate most frequent error type
+            const errorCounts = {};
+            let frequentError = "none";
+            let maxCount = 0;
 
+            for (const row of rows) {
+                const error = row.errorType;
+                if (error && error !== "none") {
+                    errorCounts[error] = (errorCounts[error] || 0) + 1;
+
+                    if (errorCounts[error] > maxCount) {
+                        maxCount = errorCounts[error];
+                        frequentError = error;
+                    }
+                }
+            }
+
+            // Construct use context 
             const previousInteractions = rows.map((row) => `${row.question} (User Answer: ${row.userAnswer || "Not answered yet"})`);
 
             const context = 

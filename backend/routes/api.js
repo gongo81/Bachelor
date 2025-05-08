@@ -95,6 +95,7 @@ router.post("/exercises", async (req, res) => {
             stream: false,
         });
 
+        // Deconstruct llm response to question and answer
         const result = response.data.response || "";
         const [questionPart, answer] = result.split("\nAnswer:");
         const question = questionPart.replace("Question:", "").trim();
@@ -146,6 +147,7 @@ router.post("/teacher-exercises", async (req, res) => {
             stream: false,
         });
 
+        // Deconstruct llm response to question and answer
         const result = response.data.response || "";
         const [questionPart, answer] = result.split("\nAnswer:");
         const question = questionPart.replace("Question:", "").trim();
@@ -236,6 +238,7 @@ router.post("/exercises/evaluate", async (req, res) => {
             stream: false,
         });
 
+        // Extract correctness and errortype form llm response
         const feedback = response.data.response || "No feedback generated";
 
         const isCorrectMatch = feedback.match(/Correctness: (correct|incorrect)/i);

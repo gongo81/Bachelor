@@ -20,6 +20,7 @@ function StudentPage({ onBack }) {
     const [showTeacherExercises, setShowTeacherExercises] = useState(false);
     const [statusMessage, setStatusMessage] = useState("");
 
+    // Exercise generation function
     const generateExercise = async () => {
         if (!username) {
             setStatusMessage("Please enter a username");
@@ -44,6 +45,7 @@ function StudentPage({ onBack }) {
         }
     };
 
+    // Teacher exercise fetch function
     const fetchTeacherExercises = async () => {
         if (!username) {
             setStatusMessage("Please enter a username");
@@ -75,6 +77,7 @@ function StudentPage({ onBack }) {
         }
     };
 
+    // Passing and setting needed useStates for selecting a techer exercise
     const selectTeacherExercise = (exercise) => {
         setSelectedTeacherExercise(exercise);
         setQuestion(exercise.question);
@@ -84,6 +87,7 @@ function StudentPage({ onBack }) {
         setShowTeacherExercises(false);
     };
 
+    // Passing and setting needed useStates for going back to techer exercises overview
     const goBackToTeacherExercises = () => {
         setQuestion("");
         setAnswer("");
@@ -93,6 +97,7 @@ function StudentPage({ onBack }) {
         setShowTeacherExercises(true);
     };
 
+    // Answer evaluation function
     const evaluateAnswer = async () => {
         if (!username) {
             setStatusMessage("Please enter a username");

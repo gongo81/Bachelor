@@ -5,8 +5,9 @@ import TeacherPage from "./pages/TeacherPage";
 import "./App.css";
 
 function App() {
-    const [role, setRole] = useState(null);
 
+    // Role Selection logic
+    const [role, setRole] = useState(null);
     const handleRoleSelect = (selectedRole) => setRole(selectedRole);
     const handleBack = () => setRole(null);
 

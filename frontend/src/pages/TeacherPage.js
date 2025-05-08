@@ -15,6 +15,7 @@ function TeacherPage({ onBack }) {
     const [isGenerating, setIsGenerating] = useState(false);
     const [statusMessage, setStatusMessage] = useState("");
 
+    // Viewing user content function
     const showUserContext = async () => {
         if (!username) {
             setStatusMessage("Please enter a username");
@@ -31,6 +32,7 @@ function TeacherPage({ onBack }) {
         }
     };
 
+    // Checks if user exists
     const checkUserExists = async () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/users/${username}/exists`);
@@ -42,6 +44,7 @@ function TeacherPage({ onBack }) {
         }
     };
 
+    // Customized teacher exercise generation in combination with llm
     const generateTeacherExercise = async () => {
         if (!username) {
             setStatusMessage("Please enter a username");
@@ -76,6 +79,7 @@ function TeacherPage({ onBack }) {
         }
     };
 
+    // Creating a new user
     const createUser = async () => {
         if (!username) {
             setStatusMessage("Please enter a username");
