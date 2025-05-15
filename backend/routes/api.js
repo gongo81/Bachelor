@@ -65,6 +65,7 @@ router.get("/users/:username/exists", async (req, res) => {
 
 // Generate an LLM exercise
 router.post("/exercises", async (req, res) => {
+    const startTime = Date.now();
     const { dbType, username } = req.body;
 
     try {
@@ -73,12 +74,13 @@ router.post("/exercises", async (req, res) => {
         const difficulty = successRate > 0.8 ? 3 : successRate > 0.5 ? 2 : 1;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "gemma3:4b",
-            prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query exercise with 
+            model: "llama3.1:latest",
+            prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query code-exercise with 
             a question and answer, tailored to the user's learning level based on their history context: ${context} 
             (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and do not reveal the context information). 
             
-            Format it strictly following exact structure, with no additional text, special characters, or deviations: 
+            Format it strictly following exact structure, with no additional text, special characters, Markdown, Brackets or deviations
+            and be precise about which table etc is needed in order to clearly solve the task: 
             "Question: [question text]\nAnswer: [answer text]", 
             and ensure the actual answer appears only after "Answer:".
 
@@ -110,6 +112,8 @@ router.post("/exercises", async (req, res) => {
             res.status(500).send("Error generating exercise");
         }
     }
+    const generationTime = Date.now() - startTime;
+    console.log(`Exercise generation took ${generationTime} ms`);
 });
 
 // Generate a teacher exercise
@@ -121,12 +125,13 @@ router.post("/teacher-exercises", async (req, res) => {
         const { context } = await getUserContext(userId);
         const difficultyNum = difficulty === "Easy" ? 1 : difficulty === "Medium" ? 2 : 3;
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "gemma3:4b",
+            model: "llama3.1:latest",
             prompt: `Based on the teacher input: "${prompt}", generate a ${difficulty.toLowerCase()} ${dbType} 
-            query exercise with a question and answer, tailored to the user's learning level using their history context: ${context} 
-            (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and do not reveal the context information). 
+            query code-exercise with a question and answer, tailored to the user's learning level using their history context: ${context} 
+            (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and 
+            do not reveal the context information). 
             
-            Format it strictly following exact structure, with no additional text, special characters, or deviations: 
+            Format it strictly following exact structure, with no additional text, special characters, Markdown or deviations: 
             "Question: [question text]\nAnswer: [answer text]", 
             and ensure the actual answer appears only after "Answer:".
 
@@ -179,8 +184,10 @@ router.get("/users/:username/teacher-exercises", async (req, res) => {
     }
 });
 
+
 // Evaluate an answer
 router.post("/exercises/evaluate", async (req, res) => {
+    const feedbackStart = Date.now();
     const { question, userAnswer, username, dbType } = req.body;
 
     try {
@@ -188,21 +195,22 @@ router.post("/exercises/evaluate", async (req, res) => {
         const { context } = await getUserContext(userId);
         const correctAnswer = await getCorrectAnswer(userId, question);
 
-        const prompt = `Evaluate the user's answer: "${userAnswer}" for the question: "${question}", with the correct answer: "${correctAnswer}".
+        const prompt = `Evaluate the user's answer: "${userAnswer}" for the question: "${question}". Knowing the correct sample answer would be: "${correctAnswer}".
             Use the user's history context: ${context} (do not reveal this information) to provide personalized, encouraging feedback, acting as a supportive learning assistant.
         
-            Output the response in the following exact structure, with no additional text, special characters, or deviations:
-            1. Sample Solution: [${correctAnswer}]
-            2. Feedback: [Detailed, beginner-friendly explanation of the user's answer, including whether it is correct or incorrect, and why. Reference patterns from the user's history, e.g., "You've had syntax errors before."]
-            3. Hints: [Specific, actionable steps to improve, e.g., "Check the syntax for ${dbType} function which where asked." Include a resource link, e.g., "Review ${dbType} documentation at [link]."]
-            4. Correctness: [correct if the answer runs and produces the correct output; otherwise incorrect]
+            Output the response in the following exact structure, with no additional text, special characters, Markdown or deviations in any part of the output:
+            All the Outputs should be single-lined without line break!
+            1. Sample Solution: [Write the ${correctAnswer} as a single-line command with no line breaks, markdown formatting, or extra whitespace.]
+            2. Feedback: [Based on the user Answer: ${userAnswer}, give detailed, beginner-friendly explanation of the user's answer, including whether it is correct or incorrect, and why. Reference patterns from the user's history.]
+            3. Hints: [Specific, actionable steps to improve and what needs to be corrected in the user answer. Include a resource link, e.g., "Review ${dbType} documentation at [link]."]
+            4. Correctness: correct if the answer runs and produces the correct output; otherwise incorrect
             5. ErrorType: [syntax, logic, concept, or none; use "none" if correct]
 
-            Accept alternative correct answers that may differ from the sample in syntax or formatting, as long as they produce the same result when executed on a valid ${dbType} database.
+            Important: Accept alternative correct user answers that may differ from the sample solution in syntax or formatting, as long as they produce the same result when executed on a valid ${dbType} database.
             Ensure feedback is clear, educational, and supportive.`;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "gemma3:4b",
+            model: "llama3.1:latest",
             prompt,
             stream: false,
         });
@@ -227,6 +235,8 @@ router.post("/exercises/evaluate", async (req, res) => {
             res.status(500).send("Error evaluating answer");
         }
     }
+    const feedbackTime = Date.now() - feedbackStart;
+    console.log(`Feedback generation took ${feedbackTime} ms`);
 });
 
 // Get user context
