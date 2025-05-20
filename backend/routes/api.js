@@ -74,7 +74,7 @@ router.post("/exercises", async (req, res) => {
         const difficulty = successRate > 0.8 ? 3 : successRate > 0.5 ? 2 : 1;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "llama3.1:latest",
+            model: "gemma3:12b",
             prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query code-exercise with 
             a question and answer, tailored to the user's learning level based on their history context: ${context} 
             (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and do not reveal the context information). 
@@ -125,7 +125,7 @@ router.post("/teacher-exercises", async (req, res) => {
         const { context } = await getUserContext(userId);
         const difficultyNum = difficulty === "Easy" ? 1 : difficulty === "Medium" ? 2 : 3;
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "llama3.1:latest",
+            model: "gemma3:12b",
             prompt: `Based on the teacher input: "${prompt}", generate a ${difficulty.toLowerCase()} ${dbType} 
             query code-exercise with a question and answer, tailored to the user's learning level using their history context: ${context} 
             (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and 
@@ -210,7 +210,7 @@ router.post("/exercises/evaluate", async (req, res) => {
             Ensure feedback is clear, educational, and supportive.`;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-            model: "llama3.1:latest",
+            model: "gemma3:12b",
             prompt,
             stream: false,
         });
