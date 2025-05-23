@@ -77,7 +77,8 @@ router.post("/exercises", async (req, res) => {
             model: "gemma3:12b",
             prompt: `Generate a ${difficulty === 1 ? "easy" : difficulty === 2 ? "medium" : "hard"} ${dbType} query code-exercise with 
             a question and answer, tailored to the user's learning level based on their history context: ${context} 
-            (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and do not reveal the context information). 
+            (avoid repeating questions unnecessarily—rephrase or vary them when the same function is being tested and
+            do not reveal the context information). 
             
             Format it strictly following exact structure, with no additional text, special characters, Markdown, Brackets or deviations
             and be precise about which table etc is needed in order to clearly solve the task: 
@@ -195,18 +196,23 @@ router.post("/exercises/evaluate", async (req, res) => {
         const { context } = await getUserContext(userId);
         const correctAnswer = await getCorrectAnswer(userId, question);
 
-        const prompt = `Evaluate the user's answer: "${userAnswer}" for the question: "${question}". Knowing the correct sample answer would be: "${correctAnswer}".
-            Use the user's history context: ${context} (do not reveal this information) to provide personalized, encouraging feedback, acting as a supportive learning assistant.
+        const prompt = `Evaluate the user's answer: "${userAnswer}" for the question: "${question}", 
+            knowing the correct sample answer would be: "${correctAnswer}".
+            Use the user's history context: ${context} (do not reveal this information) to provide personalized, 
+            encouraging feedback, acting as a supportive learning assistant.
         
             Output the response in the following exact structure, with no additional text, special characters, Markdown or deviations in any part of the output:
             All the Outputs should be single-lined without line break!
             1. Sample Solution: [Write the ${correctAnswer} as a single-line command with no line breaks, markdown formatting, or extra whitespace.]
-            2. Feedback: [Based on the user Answer: ${userAnswer}, give detailed, beginner-friendly explanation of the user's answer, including whether it is correct or incorrect, and why. Reference patterns from the user's history.]
-            3. Hints: [Specific, actionable steps to improve and what needs to be corrected in the user answer. Include a resource link, e.g., "Review ${dbType} documentation at [link]."]
+            2. Feedback: [Based on the user Answer: ${userAnswer}, give detailed, beginner-friendly explanation of the user's answer, 
+            including whether it is correct or incorrect, and why. Reference patterns from the user's history.]
+            3. Hints: [Specific, actionable steps to improve and what needs to be corrected in the user answer. Include a resource link, e.g., 
+            "Review ${dbType} documentation at [link]."]
             4. Correctness: correct if the answer runs and produces the correct output; otherwise incorrect
             5. ErrorType: [syntax, logic, concept, or none; use "none" if correct]
 
-            Important: Accept alternative correct user answers that may differ from the sample solution in syntax or formatting, as long as they produce the same result when executed on a valid ${dbType} database.
+            Important: Accept alternative correct user answers that may differ from the sample solution in syntax or formatting, 
+            as long as they produce the same result when executed on a valid ${dbType} database.
             Ensure feedback is clear, educational, and supportive.`;
 
         const response = await axios.post("http://127.0.0.1:11434/api/generate", {

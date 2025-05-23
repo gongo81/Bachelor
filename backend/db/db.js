@@ -109,7 +109,7 @@ const getUserContext = (userId) => {
                 }
             }
 
-            // Construct use context 
+            // Construct user context 
             const previousInteractions = rows.map((row) => `${row.question} (User Answer: ${row.userAnswer || "Not answered yet"})`);
 
             const context = 
